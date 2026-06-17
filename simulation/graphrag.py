@@ -1,24 +1,29 @@
 # -*- coding: utf-8 -*-
-"""GraphRAG
+"""GraphRAG（simulation / 検証用の基準実装）
 
 LangChain + Neo4j を使った GraphRAG の実装。
 元は Colab ノートブック (https://colab.research.google.com/github/nyanta012/demo/blob/main/GraphRAG.ipynb)。
-VSCode 上で扱えるよう、各処理を関数化した。
+VSCode 上で扱えるよう、各処理を関数化した。本格的な対話エージェントは
+`actr_initial_integration_v1/` で別途構築する。ここはその参照用の土台。
 
 参考: https://blog.langchain.dev/enhancing-rag-based-applications-accuracy-by-constructing-and-leveraging-knowledge-graphs/
 
-セットアップ (uv 管理):
-    uv sync                       # 依存関係をインストール
-    uv run python graphrag.py     # 実行
-    uv sync --extra viz           # show_graph() を使う場合 (yfiles)
+セットアップ (uv 管理。依存・.env はリポジトリルートで共有):
+    uv sync                                  # 依存関係をインストール
+    uv run python simulation/graphrag.py     # 実行
+    uv sync --extra viz                      # show_graph()/export_graph_html() 用
 """
 
 import os
 from typing import List
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 from neo4j import GraphDatabase
+
+# このスクリプトのあるディレクトリ。データファイルを cwd に依存せず解決する。
+_HERE = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_DATA_FILE = os.path.join(_HERE, "ptsd_story.txt")
 
 from pydantic import BaseModel, Field
 
@@ -45,7 +50,8 @@ def load_environment() -> None:
 
     必要なキー: OPENAI_API_KEY, NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD
     """
-    load_dotenv()
+    # 親ディレクトリ（リポジトリルート）まで遡って .env を探す。
+    load_dotenv(find_dotenv())
     required = ["OPENAI_API_KEY", "NEO4J_URI", "NEO4J_USERNAME", "NEO4J_PASSWORD"]
     missing = [key for key in required if not os.environ.get(key)]
     if missing:
@@ -302,8 +308,7 @@ def build_chain(llm: ChatOpenAI, retriever):
     """質問に回答する RAG チェーンを組み立てる。"""
     _search_query = RunnableLambda(lambda x: x["question"])
 
-    template = """あなたは優秀なAIです。下記のコンテキストを利用してユーザーの質問に丁寧に答えてください。
-必ず文脈からわかる情報のみを使用して回答を生成してください。
+    template = """以下はあなたの記憶です。あなたはその記憶をもとに、ユーザの問いかけに答えてください。。
 {context}
 
 ユーザーの質問: {question}"""
@@ -322,7 +327,7 @@ def build_chain(llm: ChatOpenAI, retriever):
     )
 
 
-def setup(file_path: str = "ptsd_story.txt"):
+def setup(file_path: str = DEFAULT_DATA_FILE):
     """環境読み込みからチェーン構築までを一括で行う。
 
     Returns:
@@ -352,6 +357,6 @@ def ask(chain, question: str) -> str:
 
 
 if __name__ == "__main__":
-    graph, chain = setup("ptsd_story.txt")
-    answer = ask(chain, "What treatment helped the author recover from PTSD?")
+    graph, chain = setup()
+    answer = ask(chain, "あなたの症状の回復に役立ったのは何ですか？")
     print(answer)
