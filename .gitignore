@@ -5,3 +5,7 @@ __pycache__/
 # pyvis が生成する可視化アセット・出力
 lib/
 graph.html
+flow.html
+
+# OS
+.DS_Store
