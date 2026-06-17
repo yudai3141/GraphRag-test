@@ -1,0 +1,27 @@
+[project]
+name = "graphrag-test"
+version = "0.1.0"
+description = "LangChain + Neo4j を使った GraphRAG の実装"
+requires-python = ">=3.10"
+dependencies = [
+    "langchain>=0.3",
+    "langchain-core>=0.3",
+    "langchain-openai>=0.2",
+    "langchain-experimental>=0.3",
+    "langchain-neo4j>=0.4",
+    "langchain-text-splitters>=0.3",
+    "langchain-community>=0.3",
+    "neo4j>=5",
+    "tiktoken>=0.8",
+    "python-dotenv>=1",
+]
+
+[project.optional-dependencies]
+viz = [
+    "pyvis>=0.3.2",
+    "yfiles-jupyter-graphs>=1.10",
+    "ipython",
+]
+
+[tool.uv]
+package = false
