@@ -12,6 +12,7 @@ import os
 import sys
 
 from . import config
+from .domain.models import AssociatedEpisode
 from .prompts import templates
 from .infrastructure.embeddings import EmbeddingService
 from .infrastructure.llm import LLMClient
@@ -44,7 +45,7 @@ _OPTIONS = """
 """
 
 
-def export_flow(query: str, output_path: str = "flow.html") -> str:
+def export_flow(query: str, output_path: str = "flow.html", seed_id: str = None) -> str:
     from pyvis.network import Network
 
     embedder = EmbeddingService()
@@ -61,6 +62,16 @@ def export_flow(query: str, output_path: str = "flow.html") -> str:
     result = recaller.recall(query, episodes, now)
     seed = result.seed
     related = result.related
+
+    # seed_id 指定時はその記憶を seed に固定（ACT-R のノイズで seed が変わるのを避けて再現したいとき用）
+    if seed_id:
+        seed = next((c for c in result.candidates if c.episode.id == seed_id), None)
+        related = []
+        if seed is not None:
+            related = [
+                AssociatedEpisode(episode=by_id[r["id"]], shared=r["shared"])
+                for r in store.associative_episodes(seed_id) if r["id"] in by_id
+            ]
 
     # ⑥：応答（読み取り専用＝reinforce しない）
     seed_ep = seed.episode if seed else None
@@ -163,5 +174,6 @@ def export_flow(query: str, output_path: str = "flow.html") -> str:
 if __name__ == "__main__":
     config.load_env()
     q = sys.argv[1] if len(sys.argv) > 1 else "電車に乗るのは平気ですか？"
+    seed_id = sys.argv[2] if len(sys.argv) > 2 else None
     out = os.path.join(os.path.dirname(__file__), "flow.html")
-    export_flow(q, output_path=out)
+    export_flow(q, output_path=out, seed_id=seed_id)
