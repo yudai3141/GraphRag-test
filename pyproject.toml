@@ -24,6 +24,10 @@ viz = [
     "yfiles-jupyter-graphs>=1.10",
     "ipython",
 ]
+ui = [
+    "streamlit>=1.40",
+    "pyvis>=0.3.2",
+]
 
 [tool.uv]
 package = false

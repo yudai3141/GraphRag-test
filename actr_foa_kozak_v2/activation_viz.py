@@ -52,21 +52,9 @@ def _legend(query: str, core_line: str) -> str:
     )
 
 
-def export_activation(query: str, output_path: str = "activation.html") -> str:
-    from pyvis.network import Network
-
-    embedder = EmbeddingService()
-    spreader = SpreadingActivation(embedder)
-    store = Neo4jStore()
-    graph = store.load_fear_graph()
-    store.close()
-
-    activation, reached_hop, seeds = spreader.compute(query, graph)
-    seed_keys = {s.key for s, _ in seeds}
-    max_act = max(activation.values(), default=1.0) or 1.0
-
-    # 中核評価の収束サマリ（凡例用）
-    core_line = " / ".join(
+def core_summary(graph, activation) -> str:
+    """中核評価の収束サマリ（凡例・字幕用）。"""
+    return " / ".join(
         f"{n.name}={activation[n.key]:.2f}"
         for n in sorted(
             [n for n in graph.nodes if n.label == config.CORE_LABEL and n.key in activation],
@@ -74,10 +62,17 @@ def export_activation(query: str, output_path: str = "activation.html") -> str:
         )
     )
 
-    net = Network(height="860px", width="100%", directed=True, notebook=False)
+
+def render_html(graph, activation, reached_hop, seeds, query: str, height: str = "860px") -> str:
+    """恐怖構造グラフ全体に活性を重ねた HTML 文字列を返す（CLI・UI で共用）。"""
+    from pyvis.network import Network
+
+    seed_keys = {s.key for s, _ in seeds}
+    max_act = max(activation.values(), default=1.0) or 1.0
+
+    net = Network(height=height, width="100%", directed=True, notebook=False)
     net.set_options(_OPTIONS)
 
-    # 全ノード（活性ノードは色＋大きさ、非活性は薄グレー小）
     all_nodes = [(n.key, n.label, n.name) for n in graph.nodes] + \
                 [(e.key, config.EPISODE_LABEL, e.event[:20]) for e in graph.episodes]
     for key, label, name in all_nodes:
@@ -93,7 +88,6 @@ def export_activation(query: str, output_path: str = "activation.html") -> str:
             net.add_node(key, label=" ", title=name, color=_DIM, size=5,
                          borderWidth=0, font={"size": 1})
 
-    # エッジ（活性→活性は濃く、それ以外は薄く）
     for e in graph.edges:
         both = activation.get(e.src, 0) > 1e-4 and activation.get(e.dst, 0) > 1e-4
         if both:
@@ -102,18 +96,28 @@ def export_activation(query: str, output_path: str = "activation.html") -> str:
         else:
             net.add_edge(e.src, e.dst, color="#efefef", width=0.3)
 
-    net.write_html(output_path, notebook=False)
-    with open(output_path, "r", encoding="utf-8") as f:
-        html = f.read()
+    html = net.generate_html(notebook=False)
+    return html.replace("</body>", _legend(query, core_summary(graph, activation)) + "</body>", 1)
+
+
+def export_activation(query: str, output_path: str = "activation.html") -> str:
+    embedder = EmbeddingService()
+    spreader = SpreadingActivation(embedder)
+    store = Neo4jStore()
+    graph = store.load_fear_graph()
+    store.close()
+
+    activation, reached_hop, seeds = spreader.compute(query, graph)
+    html = render_html(graph, activation, reached_hop, seeds, query)
     with open(output_path, "w", encoding="utf-8") as f:
-        f.write(html.replace("</body>", _legend(query, core_line) + "</body>", 1))
+        f.write(html)
 
     n_active = sum(1 for v in activation.values() if v > 1e-4)
     print(f"Activation map written to {output_path}")
     print(f"  クエリ: {query}")
     print(f"  入口: {', '.join(s.name for s, _ in seeds) or '(なし)'}")
-    print(f"  活性ノード数: {n_active} / 全{len(all_nodes)}")
-    print(f"  中核収束: {core_line or '-'}")
+    print(f"  活性ノード数: {n_active}")
+    print(f"  中核収束: {core_summary(graph, activation) or '-'}")
     return output_path
 
 
