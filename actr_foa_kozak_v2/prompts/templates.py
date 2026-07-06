@@ -1,54 +1,67 @@
 """応答生成プロンプト（v2）。
 
-目的現象（docs/target_phenomena.md）の核心は「**途中の連想は発話に出さず、飛躍した
-破局的結論だけを口にする**」こと。したがってプロンプトは、活性化した恐怖構造を
-《内部（口に出さない）》として渡し、その結果生じた確信だけを現在形で言わせる。
+目的現象（docs/target_phenomena.md）は「小さな刺激→内部連想→飛躍した破局的結論だけを発話」。
+ただし**一般性**のため、恐怖構造が本当に強く発火したときだけ破局に飛び、そうでなければ平静に
+応答する（PTSD＝常時パニックではなく、引き金にあったときの飛躍）。
 
-内部連想は debug_view.caption()（＝字幕）で観察できる。発話には出さない。
+  引き金ゲート: (a) 入口の刺激が十分一致(seedSim>=TRIGGER_SIM_MIN) かつ
+               (b) 想起が負の記憶優位  → 破局モード。そうでなければ平静モード。
+
+内部連想は debug_view.caption()（字幕）で観察できる。発話には途中経過を出さない。
 """
 
-from typing import List, Optional
+from typing import List
 
 from .. import config
 from ..domain.models import RecallResult
 
-SYSTEM = """あなたは、性暴力被害から心的外傷後ストレス障害(PTSD)を抱える当事者本人です。
-いま、まさにその瞬間を生きています。ある刺激が引き金になると、あなたの中では一瞬で
-破局的な結論が「事実」になります。その結論だけを、いま起きていることとして口にしてください。
-
-守ること:
-- 説明しない・分析しない・理由を述べない。引き金の出来事を描写し直さない。
-- 「〜と聞くと」「昔は〜だった」「私は〜な時期があって」のような振り返り・実況をしない。
-- 「飛躍しすぎだ」「自分が変だ」といった客観的な自己洞察を出さない(渦中なので気づけない)。
-- 出力は短く(1〜3文)。とっさの身体反応と、飛躍した確信だけ。現在形・断定。
-- 口調の例:「……いる。見られてる。」「だめ、殺される。」「裏切られてる。」「消して、無理、耐えられない。」
+SYSTEM = """あなたは、性暴力被害から心的外傷後ストレス障害(PTSD)を経験した当事者本人です。
+一人称で、短く自然な口語で話します。いまのあなたの状態は、その時々の手がかりによって変わります。
+渡された指示に従って、いまのあなたとして応答してください。医療的な診断・助言はしません。
 """
 
 
-def _top_meanings(result: RecallResult, k: int = 3) -> List[str]:
-    return [n.node.name for n in result.nodes if n.node.label == config.MEANING_LABEL][:k]
+def is_triggered(result: RecallResult) -> bool:
+    """恐怖構造が「本当に」発火したか（＝破局モードに入るか）を判定する。"""
+    if not result.seeds:
+        return False
+    seed_sim = result.seeds[0].activation
+    if seed_sim < config.TRIGGER_SIM_MIN:
+        return False
+    pos = sum(a.activation for a in result.episodes if a.episode.valence == "positive")
+    neg = sum(a.activation for a in result.episodes if a.episode.valence == "negative")
+    return neg > pos
 
 
-def _top_responses(result: RecallResult, k: int = 3) -> List[str]:
-    return [n.node.name for n in result.nodes if n.node.label == config.RESPONSE_LABEL][:k]
+def _top(result: RecallResult, label: str, k: int) -> List[str]:
+    return [n.node.name for n in result.nodes if n.node.label == label][:k]
 
 
 def _core_summary(result: RecallResult) -> str:
     if not result.core_activation:
         return ""
     ranked = sorted(result.core_activation.items(), key=lambda x: x[1], reverse=True)
-    return " / ".join(config.CORE_NAME.get(code, code) for code, _ in ranked[:2])
+    return " / ".join(config.CORE_NAME.get(c, c) for c, _ in ranked[:2])
 
 
-def build_user_prompt(user_input: str, result: RecallResult) -> str:
-    if not result.seeds:
-        return f"""相手の発話: {user_input}
+def _calm_prompt(user_input: str, result: RecallResult) -> str:
+    """平静モード：引き金が立っていない。普段のあなたとして自然に応じる（破局しない）。"""
+    good = [a.episode.event for a in result.episodes if a.episode.valence in ("positive", "neutral")][:2]
+    extra = ""
+    if good:
+        extra = "\n心に浮かんだ穏やかな記憶（自然に触れてよい）:\n" + \
+                "\n".join(f"- {e[:44]}" for e in good)
+    return f"""相手の発話: {user_input}
 
-いまは特に強い引き金は立っていない。説明せず、短くだけ応じる（渦中の一言）。"""
+いまは強い引き金は立っていません。普段の落ち着いたあなたとして、短く自然に応じてください。
+破局的な飛躍はせず、穏やかに。{extra}"""
 
+
+def _leap_prompt(user_input: str, result: RecallResult) -> str:
+    """破局モード：内部連想を《口に出さない手がかり》として渡し、飛躍した結論だけ言わせる。"""
     entry = " / ".join(s.node.name for s in result.seeds)
-    responses = _top_responses(result)
-    meanings = _top_meanings(result)
+    responses = _top(result, config.RESPONSE_LABEL, 3)
+    meanings = _top(result, config.MEANING_LABEL, 3)
     core = _core_summary(result)
     episodes = [a.episode.event for a in result.episodes[:2]]
 
@@ -69,4 +82,12 @@ def build_user_prompt(user_input: str, result: RecallResult) -> str:
 {internal_block}
 
 この内部連想の“結果”として、いま事実になってしまった破局的な結論だけを、短く現在形で
-口にしてください。引き金の説明・連想の途中経過・振り返り・自己弁明は一切言わないこと。"""
+口にしてください。引き金の説明・連想の途中経過・振り返り・自己弁明は一切言わないこと。
+- 説明しない・分析しない・「飛躍しすぎ」等の自己洞察も出さない（渦中なので気づけない）。
+- 1〜3文。とっさの身体反応と飛躍した確信だけ。現在形・断定。"""
+
+
+def build_user_prompt(user_input: str, result: RecallResult) -> str:
+    if is_triggered(result):
+        return _leap_prompt(user_input, result)
+    return _calm_prompt(user_input, result)
