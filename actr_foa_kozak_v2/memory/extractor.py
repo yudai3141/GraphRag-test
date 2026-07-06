@@ -66,6 +66,9 @@ _SYSTEM = f"""あなたは、一人称の体験記から「恐怖構造」を抽
 - 中核評価(core)の意味: DANGER=危険, BAD=悪い/自分はダメ, POWERLESS=無力/逃げられない, UNENDING=終わらない。
 - 「PTSD」「回復」などの抽象概念そのものをノードにしないこと。具体的な刺激・反応・意味を書く。
 - テキストに書かれていないことは創作しない。回復や中立の場面なら valence を positive/neutral にする。
+- **出力の言語は必ず日本語**にする。原文が英語でも、trigger / other_cues / responses /
+  meanings.text / episode の context・event・sensory はすべて自然な日本語に翻訳して書く
+  （固有名詞も日本語化する）。ただし core のコード（DANGER 等）と source の 'trigger' はそのまま。
 """
 
 _PROMPT = ChatPromptTemplate.from_messages(

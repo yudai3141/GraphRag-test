@@ -6,6 +6,10 @@ __pycache__/
 lib/
 graph.html
 flow.html
+activation.html
 
 # OS
 .DS_Store
+
+# 作業用スクラッチ（要件メモ等・git 管理外）
+tmp/

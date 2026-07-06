@@ -40,10 +40,11 @@ class SpreadingActivation:
         self.source_top_k = source_top_k
         self.source_sim_min = source_sim_min
 
-    def recall(self, query: str, graph: FearGraph) -> RecallResult:
-        by_key: Dict[str, FearNode] = {n.key: n for n in graph.nodes}
-        ep_by_key: Dict[str, Episode] = {e.key: e for e in graph.episodes}
+    def compute(self, query: str, graph: FearGraph):
+        """拡散活性の生データを返す（可視化などで共用）。
 
+        戻り値: (activation: key->活性値, reached_hop: key->到達ホップ, seeds: [(FearNode, 類似度)])
+        """
         # 出力方向の隣接リスト: src -> [(dst, rel, weight), ...]
         adj: Dict[str, List[tuple]] = {}
         for e in graph.edges:
@@ -87,6 +88,14 @@ class SpreadingActivation:
             frontier = nxt
             if not frontier:
                 break
+
+        return activation, reached_hop, seeds
+
+    def recall(self, query: str, graph: FearGraph) -> RecallResult:
+        by_key: Dict[str, FearNode] = {n.key: n for n in graph.nodes}
+        ep_by_key: Dict[str, Episode] = {e.key: e for e in graph.episodes}
+
+        activation, reached_hop, seeds = self.compute(query, graph)
 
         # ③ 集計：恐怖構造ノードとエピソードに分ける
         act_nodes: List[ActivatedNode] = []

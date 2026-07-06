@@ -91,13 +91,33 @@ uv run python -m actr_foa_kozak_v2.main
 
 ## 可視化
 
-```bash
-# 恐怖構造グラフ全体（刺激=橙/反応=青/意味=赤/中核=紫/エピソード=緑）
-uv run --extra viz python -m actr_foa_kozak_v2.viz          # → graph.html
+3種類の HTML を生成できる（`uv sync --extra viz` が必要）。いずれも VSCode の
+Simple Browser（コマンドパレット `Simple Browser: Show`）かブラウザで開く。
 
-# 1 クエリの拡散活性フロー（クエリ→入口→拡散→中核収束→想起エピソード→応答）
-uv run --extra viz python -m actr_foa_kozak_v2.flow_viz "勉強って最近どう？"   # → flow.html
+```bash
+# ① 恐怖構造グラフ全体（静的な地図）
+uv run --extra viz python -m actr_foa_kozak_v2.viz                              # → graph.html
+
+# ② クエリを投げてグラフ全体の上に活性化を重ねるヒートマップ（光る場所がクエリで動く）
+uv run --extra viz python -m actr_foa_kozak_v2.activation_viz "電車ってよく乗るの？"  # → activation.html
+
+# ③ 1 クエリの拡散活性フロー（クエリ→入口→拡散→中核収束→想起エピソード→応答 を段レイアウトで）
+uv run --extra viz python -m actr_foa_kozak_v2.flow_viz "電車ってよく乗るの？"        # → flow.html
 ```
+
+### 色の説明（ノードの役割）
+
+| 色 | 役割 |
+|---|---|
+| 🟠 橙 `#f58231` | **刺激** Stimulus（恐怖を喚起する対象・状況） |
+| 🔵 青 `#4363d8` | **反応** Response（身体・感情・行動の反応） |
+| 🔴 赤 `#e6194B` | **具体的意味** Meaning（破局的な意味づけ） |
+| 🟣 紫 `#911eb4` | **中核評価** Core（危険 / BAD / 無力 / 終わらない） |
+| 🟢 緑 `#3cb44b` | **エピソード** Episode（過去の出来事） |
+| ⚪ 薄グレー `#e3e3e3` | 非活性（②の活性ヒートマップで、そのクエリでは光っていないノード） |
+
+②の活性ヒートマップでは、**ノードの大きさ・濃さ＝活性の強さ**、**太い枠＝入口の刺激**を表す。
+クエリを変えると恐怖構造のどこが光るかが変わり、危険/無力の中核（紫）へ収束していく様子が見える。
 
 ## 構築結果（ptsd_story.txt から）
 
