@@ -58,7 +58,13 @@ REL_WEIGHT = {
     "RECALLS": 1.2,       # 現在の刺激→過去の記憶
     "LEADS_TO": 1.5,      # 嫌な記憶→嫌な記憶
     "CO_OCCURS": 0.7,     # 刺激どうしの同時性
+    "SIMILAR": 0.9,       # 意味的に近い刺激どうし（刺激般化。例: 見知らぬ男性↔他人の顔）
 }
+
+# --- 刺激般化（意味的に近い刺激を SIMILAR で結ぶ・汎用則） --------------
+# ある刺激が、意味的に近い別の刺激の連想も呼び起こす（stimulus generalization）。
+STIM_SIMILAR_MIN = 0.45   # SIMILAR を張る最小コサイン類似度
+STIM_SIMILAR_TOPN = 3     # 1 刺激あたり結ぶ近傍数の上限
 TOP_NODES = 12            # 応答文脈に渡す活性ノード数
 TOP_EPISODES = 4          # 応答文脈に渡す想起エピソード数
 

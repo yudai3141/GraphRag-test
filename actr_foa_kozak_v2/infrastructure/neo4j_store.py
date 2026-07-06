@@ -113,6 +113,18 @@ class Neo4jStore:
             config.STIMULUS_LABEL, hi, weight_inc,
         )
 
+    def merge_similar(self, name_a: str, name_b: str, sim: float) -> None:
+        """意味的に近い刺激どうしを SIMILAR で結ぶ（刺激般化。重み=類似度、冪等）。"""
+        lo, hi = sorted([name_a, name_b])
+        with self._session() as s:
+            s.run(
+                f"""
+                MATCH (a:{config.STIMULUS_LABEL} {{name: $a}}), (b:{config.STIMULUS_LABEL} {{name: $b}})
+                MERGE (a)-[r:SIMILAR]->(b) SET r.weight = $w
+                """,
+                a=lo, b=hi, w=sim,
+            )
+
     # --- 読み込み（対話時） ---------------------------------------------
     def load_fear_graph(self) -> FearGraph:
         """恐怖構造グラフ全体をメモリに読み込む（拡散活性の入力）。"""

@@ -11,6 +11,7 @@
 拡散活性の入口は刺激なので、刺激とエピソードにだけ埋め込みを付ける（反応/意味は構造でたどる）。
 """
 
+import numpy as np
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import TokenTextSplitter
 
@@ -41,6 +42,7 @@ def build() -> None:
     order = 0
     prev_negative_id: str | None = None   # LEADS_TO 用（直前の負エピソード）
     n_frag = 0
+    stim_emb: dict[str, list] = {}         # 刺激名→埋め込み（SIMILAR 構築に使う）
 
     for i, chunk in enumerate(chunks, 1):
         print(f"  [{i}/{len(chunks)}] 恐怖構造を抽出中...")
@@ -51,16 +53,18 @@ def build() -> None:
                 continue
 
             # 刺激（trigger）＝拡散活性の入口。埋め込みを付ける。
-            store.merge_node(config.STIMULUS_LABEL, trigger,
-                             embedding=embedder.embed(trigger).tolist())
+            vec = embedder.embed(trigger).tolist()
+            stim_emb[trigger] = vec
+            store.merge_node(config.STIMULUS_LABEL, trigger, embedding=vec)
 
             # 同時に存在した刺激 → CO_OCCURS
             for cue in frag.other_cues:
                 cue = cue.strip()
                 if not cue or cue == trigger:
                     continue
-                store.merge_node(config.STIMULUS_LABEL, cue,
-                                 embedding=embedder.embed(cue).tolist())
+                cvec = embedder.embed(cue).tolist()
+                stim_emb[cue] = cvec
+                store.merge_node(config.STIMULUS_LABEL, cue, embedding=cvec)
                 store.merge_cooccurs(trigger, cue)
 
             # 反応 → EVOKES（刺激→反応）
@@ -110,6 +114,24 @@ def build() -> None:
                         store.merge_leads_to(prev_negative_id, ep.id)
                     prev_negative_id = ep.id
 
+    # 刺激般化：意味的に近い刺激どうしを SIMILAR で結ぶ（汎用則・特定現象向けの手当てはしない）
+    names = list(stim_emb)
+    if len(names) >= 2:
+        M = np.asarray([stim_emb[n] for n in names], dtype=np.float32)
+        M = M / (np.linalg.norm(M, axis=1, keepdims=True) + 1e-9)
+        sims = M @ M.T
+        for i, a in enumerate(names):
+            cnt = 0
+            for j in sims[i].argsort()[::-1]:
+                if j == i:
+                    continue
+                s = float(sims[i, j])
+                if s < config.STIM_SIMILAR_MIN or cnt >= config.STIM_SIMILAR_TOPN:
+                    break
+                store.merge_similar(a, names[j], s)
+                cnt += 1
+        print(f"🔗 刺激般化(SIMILAR)を構築しました（min={config.STIM_SIMILAR_MIN}, topN={config.STIM_SIMILAR_TOPN}）")
+
     counts = store.counts()
     store.close()
 
@@ -117,7 +139,7 @@ def build() -> None:
     print("--- 恐怖構造グラフ ---")
     for label in ["FkStimulus", "FkResponse", "FkMeaning", "FkCore", "FkEpisode"]:
         print(f"  {label:12s}: {counts.get(label, 0)}")
-    for rel in ["EVOKES", "MEANS", "ROLLS_UP", "RECALLS", "LEADS_TO", "CO_OCCURS"]:
+    for rel in ["EVOKES", "MEANS", "ROLLS_UP", "RECALLS", "LEADS_TO", "CO_OCCURS", "SIMILAR"]:
         print(f"  {rel:12s}: {counts.get(rel, 0)}")
 
 

@@ -37,9 +37,9 @@ class FragmentEpisode(BaseModel):
 
 
 class FearFragment(BaseModel):
-    trigger: str = Field(description="中心の刺激（恐怖・不快を引き起こす対象や状況）")
-    other_cues: List[str] = Field(default_factory=list, description="同時に存在した他の刺激")
-    responses: List[str] = Field(default_factory=list, description="身体・感情・行動の反応")
+    trigger: str = Field(description="中心の刺激。短く原子的な語にする（例: 見知らぬ男性, 電車, トンネル, 音, 引き出し）。出来事の説明を入れない")
+    other_cues: List[str] = Field(default_factory=list, description="同時に存在した他の刺激。同じく短く原子的な語")
+    responses: List[str] = Field(default_factory=list, description="身体・感情・行動の反応。短い語（例: 動悸, 身体が固まる, 逃げたい, 恐怖）")
     meanings: List[MeaningItem] = Field(default_factory=list)
     episode: Optional[FragmentEpisode] = Field(
         default=None, description="このシーンに対応する具体的な過去の出来事（あれば）"
@@ -66,6 +66,12 @@ _SYSTEM = f"""あなたは、一人称の体験記から「恐怖構造」を抽
 - 中核評価(core)の意味: DANGER=危険, BAD=悪い/自分はダメ, POWERLESS=無力/逃げられない, UNENDING=終わらない。
 - 「PTSD」「回復」などの抽象概念そのものをノードにしないこと。具体的な刺激・反応・意味を書く。
 - テキストに書かれていないことは創作しない。回復や中立の場面なら valence を positive/neutral にする。
+- **刺激(trigger/other_cues)と反応(responses)は「短く原子的で、他のエピソードでも再利用できる語」にする**。
+  出来事まるごとの長い説明にしない（それは episode に書く）。
+  悪い例:「駐車場で見知らぬ男性から口笛を吹かれたこと」→ 良い例: trigger=「見知らぬ男性」。
+  悪い例:「他人の顔が加害者の顔に見えること」→ trigger=「他人の顔」, meanings=「加害者に見張られている」。
+  同じ対象は毎回同じ語に正規化して使い回す（例: いつも「見知らぬ男性」「電車」「音」）。
+- meanings.text も短い破局的結論にする（例:「加害者に見張られている」「殺される」「自分は無力」）。
 - **出力の言語は必ず日本語**にする。原文が英語でも、trigger / other_cues / responses /
   meanings.text / episode の context・event・sensory はすべて自然な日本語に翻訳して書く
   （固有名詞も日本語化する）。ただし core のコード（DANGER 等）と source の 'trigger' はそのまま。
