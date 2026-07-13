@@ -23,28 +23,28 @@ PTSD 対話エージェント（**Foa & Kozak 恐怖構造 v2**）。
 
 ## 記憶の構造（恐怖構造グラフ）
 
-`Meaning` を「具体的意味づけ（開語彙）」と「中核評価（閉・少数）」の2階層に分けるのが肝。
-PTSD らしさは、あらゆる刺激・反応・具体解釈が**少数の負の中核へ収束**し、良い記憶だけが
-そこへ経路を持たない、という**構造**として表現される。
+> **理論忠実化（2026-07）**: 一次文献（Foa & Kozak 1986 / Lang / Collins & Loftus 1975）に
+> 当たり直し、根拠のなかった中核評価の固定4カテゴリ・単一「危険」ハブ・外付けの脅威バイアス・
+> 関係タイプ別の重み・負→負エッジを撤去した。経緯と評価は
+> [`../evaluation_v3/`](../evaluation_v3/README.md)（`docs/00_overview.html` が入口）を参照。
+> 本 README の以下は**忠実版**を記す。旧・中核前提の記述が残る箇所は順次更新中。
+
+オントロジーは**二層**。恐怖構造レイヤ（刺激・反応・意味）を、エピソード記憶レイヤ
+（二重表象理論）と束ねで接続する。意味は少数カテゴリに丸めず**開語彙**のまま持つ。
 
 ```
-刺激 Stimulus ──EVOKES──▶ 反応 Response
-    │  │                     │
-    │  └──MEANS──▶ 具体的意味 Meaning ◀──MEANS──┘
-    │                     │
-    │                  ROLLS_UP
-    │                     ▼
-    │            中核評価 Core（危険 / BAD / 無力 / 終わらない）  ← 少数・全体共有・固定
-    │
-    ├──RECALLS──▶ 過去エピソード Episode（嫌な記憶）
-    │                     │
-    └──CO_OCCURS──刺激     └──LEADS_TO──▶ 別の嫌な記憶（負→負のみ）
+恐怖構造レイヤ（Foa/Lang）:
+  刺激 Stimulus ──EVOKES──▶ 反応 Response ──MEANS──▶ 意味 Meaning（開語彙）
+  刺激 ──CO_OCCURS──▶ 別の刺激 ／ 刺激 ──SIMILAR──▶ 意味的に近い刺激（般化）
+エピソード記憶レイヤ（二重表象理論）:
+  刺激 ──RECALLS──▶ 過去エピソード Episode ──BINDS──▶ その刺激-反応-意味（記憶＝S-R-Mの束）
 ```
 
-- **ノード**: `FkStimulus` / `FkResponse` / `FkMeaning` / `FkCore` / `FkEpisode`
+- **ノード**: `FkStimulus` / `FkResponse` / `FkMeaning` / `FkEpisode`
   （すべて `Fk` 接頭辞で v1 の `Episode`/`MemEntity`・simulation の `Document` と名前空間を分離）。
-- **中核評価**は固定4種 `DANGER / BAD / POWERLESS / UNENDING`（`config.CORE_VALUATIONS`）。
-- **エッジ** `EVOKES / MEANS / ROLLS_UP / RECALLS / LEADS_TO / CO_OCCURS` に `weight`（結合の強さ）。
+- **エッジ** `EVOKES / MEANS / CO_OCCURS / SIMILAR / RECALLS / BINDS`。
+- **伝搬は無向・対称、重みは一律**（連想強度の差・方向の非対称はモデル化しない＝限界として明記）。
+- **怖がり度の指標＝反応要素の活性**（生体情報理論：感情の中心は反応）。
 - 拡散活性の入口は刺激なので、**刺激とエピソードにだけ埋め込み**を持たせる（他は構造でたどる）。
 
 ## 想起＝拡散活性（`retrieval/spreading.py`）

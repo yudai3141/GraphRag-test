@@ -98,11 +98,16 @@ class Neo4jStore:
             config.EPISODE_LABEL, episode_id, weight_inc,
         )
 
-    def merge_leads_to(self, prev_id: str, next_id: str, weight_inc: float = 1.0) -> None:
-        """嫌な記憶 → 嫌な記憶の連想（LEADS_TO）。"""
+    def merge_binds(self, episode_id: str, dst_label: str, dst_name: str,
+                    weight_inc: float = 1.0) -> None:
+        """記憶＝束ねられた刺激-反応-意味（BINDS）。エピソード↔反応/意味を束ねる。
+
+        Lang/Foa の「トラウマ記憶は刺激・反応・意味が束ねられた構造」に対応。
+        恐怖構造レイヤとエピソード記憶レイヤをつなぐ層間の橋（RECALLS と対）。
+        """
         self.merge_edge(
-            config.EPISODE_LABEL, prev_id, "LEADS_TO",
-            config.EPISODE_LABEL, next_id, weight_inc,
+            config.EPISODE_LABEL, episode_id, "BINDS",
+            dst_label, dst_name, weight_inc,
         )
 
     def merge_cooccurs(self, name_a: str, name_b: str, weight_inc: float = 1.0) -> None:
