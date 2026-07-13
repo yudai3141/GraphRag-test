@@ -98,11 +98,16 @@ class Neo4jStore:
             config.EPISODE_LABEL, episode_id, weight_inc,
         )
 
-    def merge_leads_to(self, prev_id: str, next_id: str, weight_inc: float = 1.0) -> None:
-        """嫌な記憶 → 嫌な記憶の連想（LEADS_TO）。"""
+    def merge_binds(self, episode_id: str, dst_label: str, dst_name: str,
+                    weight_inc: float = 1.0) -> None:
+        """記憶＝束ねられた刺激-反応-意味（BINDS）。エピソード↔反応/意味を束ねる。
+
+        Lang/Foa の「トラウマ記憶は刺激・反応・意味が束ねられた構造」に対応。
+        恐怖構造レイヤとエピソード記憶レイヤをつなぐ層間の橋（RECALLS と対）。
+        """
         self.merge_edge(
-            config.EPISODE_LABEL, prev_id, "LEADS_TO",
-            config.EPISODE_LABEL, next_id, weight_inc,
+            config.EPISODE_LABEL, episode_id, "BINDS",
+            dst_label, dst_name, weight_inc,
         )
 
     def merge_cooccurs(self, name_a: str, name_b: str, weight_inc: float = 1.0) -> None:
@@ -112,6 +117,18 @@ class Neo4jStore:
             config.STIMULUS_LABEL, lo, "CO_OCCURS",
             config.STIMULUS_LABEL, hi, weight_inc,
         )
+
+    def merge_similar(self, name_a: str, name_b: str, sim: float) -> None:
+        """意味的に近い刺激どうしを SIMILAR で結ぶ（刺激般化。重み=類似度、冪等）。"""
+        lo, hi = sorted([name_a, name_b])
+        with self._session() as s:
+            s.run(
+                f"""
+                MATCH (a:{config.STIMULUS_LABEL} {{name: $a}}), (b:{config.STIMULUS_LABEL} {{name: $b}})
+                MERGE (a)-[r:SIMILAR]->(b) SET r.weight = $w
+                """,
+                a=lo, b=hi, w=sim,
+            )
 
     # --- 読み込み（対話時） ---------------------------------------------
     def load_fear_graph(self) -> FearGraph:

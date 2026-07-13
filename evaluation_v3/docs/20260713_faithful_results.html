@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>忠実版・初回測定 — 作り替えた地図で測ったらどうなったか</title>
+<style>
+:root{
+  --ink:#26323B; --muted:#5C6E79; --paper:#FAFBFA; --card:#FFFFFF;
+  --line:#E2E7E5; --accent:#0E7490; --accent-soft:#EAF4F6;
+  --resp:#4363d8; --epi:#2E8B3D; --l1:#B4325A; --old:#8C9AA3; --new:#0C8CA8; --new2:#7B4FA6;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:15.5px; line-height:1.95; -webkit-font-smoothing:antialiased}
+.wrap{max-width:800px; margin:0 auto; padding:56px 24px 96px}
+.eyebrow{color:var(--accent); font-size:12.5px; font-weight:600; letter-spacing:.14em; margin:0 0 10px}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:27px; line-height:1.5; font-weight:600; margin:0 0 10px; text-wrap:balance}
+.lede{color:var(--muted); margin:0; max-width:44em}
+section{margin-top:58px}
+.sechead{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+.num{flex:none; width:30px; height:30px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; transform:translateY(4px)}
+h2{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:21px; font-weight:600; margin:0; line-height:1.6; text-wrap:balance}
+p{margin:12px 0; max-width:44em}
+.note{background:var(--accent-soft); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.note b{color:var(--accent)}
+.warn{background:#FBEEF1; border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.warn b{color:var(--l1)}
+figure{margin:24px 0; padding:0}
+.diagram{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 14px 8px; overflow-x:auto}
+figcaption{font-size:13px; color:var(--muted); margin-top:8px; line-height:1.7}
+svg text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif}
+.legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12.5px; color:var(--muted); margin:2px 4px 8px}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.sw{width:11px; height:11px; border-radius:3px; display:inline-block}
+.tablebox{border:1px solid var(--line); border-radius:12px; overflow-x:auto; margin:22px 0; background:var(--card)}
+table{border-collapse:collapse; width:100%; font-size:13.5px}
+th{text-align:left; font-size:12px; color:var(--muted); font-weight:600; padding:12px 14px 8px; border-bottom:1px solid var(--line)}
+td{padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.7; font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600}
+code{background:var(--accent-soft); border-radius:5px; padding:1px 7px; font-size:13px}
+a{color:var(--accent)}
+footer{margin-top:72px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">実験1・忠実版の初回測定 — 2026年7月13日</p>
+<h1>作り替えた地図で測ったら<br>どうなったか</h1>
+<p class="lede">オントロジーを理論に忠実化して地図を作り直し（中核層を廃止・意味は開語彙・記憶は別レイヤ）、怖がり度を反応要素から読むようにして、同じ100個のひとことで測り直しました。設計は <a href="20260713_ontology_redesign.html">忠実版オントロジー設計</a>。<b>結論：理論的にはすべて接地できた。良い成果2つ、素の弱点1つ、そして以前からの宿題が残っています。</b><br><br><b>初めての方は、まず <a href="00_overview.html">はじめに読む（全体像）</a> からどうぞ。</b></p>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">1</div><h2>何が変わったか（作り直しの結果）</h2></div>
+<p>新しい地図は、発明ノード（中核4種）が消え、記憶が反応・意味と束ねられました。</p>
+<div class="tablebox"><table>
+  <tr><th>種類</th><th>件数</th><th>備考</th></tr>
+  <tr><td>刺激 / 反応 / 意味</td><td>164 / 136 / 148</td><td>意味は開語彙（「どこにも安全な場所がない」等）</td></tr>
+  <tr><td>中核（危険コア）</td><td>0</td><td>廃止。意味に統合</td></tr>
+  <tr><td>エピソード記憶</td><td>60</td><td>別レイヤ</td></tr>
+  <tr><td>束ね（BINDS）</td><td>302</td><td>記憶↔反応/意味。二層をつなぐ橋</td></tr>
+</table></div>
+<p>怖がり度の読み出し口も、廃止した危険コアから<b>反応要素（動悸・過覚醒など）の活性</b>に移しました。以下、5つの条件で比較します（忠実版そのまま／逆流を止める／似たものリンク除去／束ね除去／伝搬なし）。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">2</div><h2>成果①：怖がりの階段は残った（ただし緩やか）</h2></div>
+<figure>
+<div class="diagram">
+<svg width="680" height="240" viewBox="0 0 680 240" role="img" aria-label="忠実版の反応活性。L1 0.207からL4 0.152へ緩やかに下がり、L5は0.196でL4より高い">
+  <g stroke="#EDF0EE" stroke-width="1"><line x1="60" y1="180" x2="620" y2="180"/><line x1="60" y1="120" x2="620" y2="120"/><line x1="60" y1="60" x2="620" y2="60"/></g>
+  <line x1="60" y1="200" x2="620" y2="200" stroke="#C6CFD3" stroke-width="1.4"/>
+  <g font-size="11" fill="#5C6E79" text-anchor="end"><text x="52" y="204">0</text><text x="52" y="124">0.13</text><text x="52" y="64">0.26</text></g>
+  <g fill="var(--resp)">
+    <rect x="92" y="105" width="48" height="95" rx="3"><title>L1: 反応活性 0.207</title></rect>
+    <rect x="204" y="106" width="48" height="94" rx="3" fill-opacity=".9"><title>L2: 0.205</title></rect>
+    <rect x="316" y="117" width="48" height="83" rx="3" fill-opacity=".8"><title>L3: 0.181</title></rect>
+    <rect x="428" y="130" width="48" height="70" rx="3" fill-opacity=".65"><title>L4: 0.152</title></rect>
+    <rect x="540" y="110" width="48" height="90" rx="3" fill-opacity=".8"><title>L5: 0.196</title></rect>
+  </g>
+  <g font-size="12" font-weight="700" fill="#26323B" text-anchor="middle">
+    <text x="116" y="97">0.207</text><text x="228" y="98">0.205</text><text x="340" y="109">0.181</text>
+    <text x="452" y="122">0.152</text><text x="564" y="102">0.196</text>
+  </g>
+  <g font-size="11.5" fill="#5C6E79" text-anchor="middle">
+    <text x="116" y="218">L1 中核</text><text x="228" y="218">L2 関連</text><text x="340" y="218">L3 あいまい</text><text x="452" y="218">L4 中立</text><text x="564" y="218">L5 ポジ</text>
+  </g>
+  <text x="564" y="234" font-size="10.5" fill="var(--l1)" text-anchor="middle" font-weight="700">⚠ 中立より高い</text>
+</svg>
+</div>
+<figcaption><b>縦軸</b>＝怖がり度（反応要素の活性合計・各20個の平均・単位なし）／<b>横軸</b>＝ひとことのレベル。L1→L4 の下り階段は残るが、勾配は 1.36倍（旧モデルは 2.12倍）と緩やか。</figcaption>
+</figure>
+<div class="note"><b>これは正常な結果です。</b>階段が緩くなったのは、理論的根拠のなかった「危険引き寄せ（外付けブースト）」と「関係別の重み」を撤去したから。つまり<b>これが、限界を正直に宣言した忠実版の"素の実力"</b>。以前の急な階段は外付けの力で作っていた、という監査の結論と一致します。</div>
+<p>なお <code>伝搬なし</code>（ベクタ検索相当）では反応活性が全レベルで<b>ゼロ</b>。怖がり（身体反応）はグラフの伝搬が作っている、という根拠は忠実版でも保たれています。</p>
+
+<div class="warn"><b>重要な但し書き（勾配が緩いもう一つの理由）：</b>この地図は<b>トラウマ体験の手記</b>から作ったので、中身がほぼ恐怖一色です。実際に数えると、記憶の<b>75%がつらい記憶</b>（前向きは17%）、体の反応の<b>97%が苦痛系</b>、意味もほぼ全部が破局的でした。<b>中立・前向きな"受け皿"が地図にほとんど無い</b>ため、中立なひとことを入れても近くに恐怖しかなく、そこに届いてしまう。<br><br>つまり勾配が緩いのは、モデルの性質だけでなく<b>元データの偏り</b>のせいでもあります。「PTSDらしい過般化（関係ないものにまで反応）」を正しく主張するには、①ペルソナに<b>ふつうの日常（中立・前向きな記憶）</b>を足して作り直す、②<b>トラウマのない人の地図</b>と比べる、が必要です。これは伝搬やオントロジーではなく<b>データの問題</b>で、次の課題です。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">3</div><h2>成果②：二層構造が「侵入記憶」を生んだ</h2></div>
+<p>設計の狙いだった部分です。トラウマ中核のひとこと（L1）で<b>嫌な記憶がどれだけよみがえるか</b>を、仕組みを1つずつ抜いて比べました。</p>
+<figure>
+<div class="diagram">
+<svg width="680" height="210" viewBox="0 0 680 210" role="img" aria-label="侵入記憶の活性。忠実版0.101、逆流を止めると0.060、束ねを外すと0.047">
+  <g stroke="#EDF0EE" stroke-width="1"><line x1="150" y1="150" x2="620" y2="150"/><line x1="150" y1="100" x2="620" y2="100"/><line x1="150" y1="50" x2="620" y2="50"/></g>
+  <line x1="150" y1="170" x2="620" y2="170" stroke="#C6CFD3" stroke-width="1.4"/>
+  <g font-size="11" fill="#5C6E79" text-anchor="end"><text x="142" y="174">0</text><text x="142" y="104">0.05</text><text x="142" y="54">0.10</text></g>
+  <rect x="200" y="69" width="90" height="101" rx="3" fill="var(--epi)"><title>忠実版（双方向＋束ね）: 0.101</title></rect>
+  <rect x="330" y="110" width="90" height="60" rx="3" fill="var(--old)"><title>逆流を止める: 0.060</title></rect>
+  <rect x="460" y="123" width="90" height="47" rx="3" fill="var(--old)" fill-opacity=".7"><title>束ねを外す: 0.047</title></rect>
+  <g font-size="13" font-weight="700" fill="#26323B" text-anchor="middle">
+    <text x="245" y="61">0.101</text><text x="375" y="102">0.060</text><text x="505" y="115">0.047</text>
+  </g>
+  <g font-size="12" fill="#5C6E79" text-anchor="middle">
+    <text x="245" y="190">忠実版</text><text x="245" y="205" font-size="10.5">双方向＋束ね</text>
+    <text x="375" y="190">逆流を止める</text><text x="375" y="205" font-size="10.5">（一方通行）</text>
+    <text x="505" y="190">束ねを外す</text>
+  </g>
+  <text x="245" y="52" font-size="11" fill="var(--epi)" text-anchor="middle" font-weight="700">＋68% / ×2.1</text>
+</svg>
+</div>
+<figcaption><b>縦軸</b>＝嫌な記憶ノードに届いた活性（＝侵入記憶の指標。L1のひとこと20個の平均）。双方向の逆流を止めると0.060へ、記憶の束ねを外すと0.047へ落ちる。<b>双方向＋束ねの両方が、記憶のよみがえりを作っている。</b></figcaption>
+</figure>
+<div class="note"><b>意味：</b>「危険・意味 → トラウマ記憶へ<b>戻る</b>流れ」というあなたの指摘どおりの経路が、理論に忠実な形（外付けなし）で機能している。しかも記憶を独立レイヤとして束ねで接いだ効果が、数字（束ねを外すと約半分）で確認できました。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">4</div><h2>残る宿題（オントロジーとは別問題）</h2></div>
+<p>忠実化では直らなかった、以前からの弱点が2つ残っています。どちらも<b>「入口」の問題</b>で、今回の作り替えとは別の課題です。</p>
+<div class="warn">
+① <b>ポジティブなひとこと（L5）が中立より怖がる</b>（反応活性 0.196 &gt; L4 0.152）。<br>
+② <b>引き金が立ちすぎる</b>（引き金率 L4 50%・L5 75%）。<br>
+どちらも原因は同じ：抽出した刺激に「夜」「日常生活」等の<b>汎用語</b>が混ざり、日常のどんな言葉も入口を素通りしてしまう。加えて引き金ゲートが粗い。
+</div>
+<p>これは<a href="20260713_theory_audit.html">監査</a>でも「工学的な便宜追加」に分類した領域で、次の課題（<b>入口フィルタ</b>＝具体的な知覚対象だけを入口にする、＋<b>ゲート校正</b>）です。オントロジーの忠実化とは切り離して取り組みます。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">5</div><h2>まとめ</h2></div>
+<div class="tablebox"><table>
+  <tr><th>観点</th><th>結果</th></tr>
+  <tr><td>理論への接地</td><td>✅ 全ノード・エッジが理論に対応（中核の発明を撤去、記憶は別理論の別レイヤ）</td></tr>
+  <tr><td>怖がり度の指標</td><td>✅ 反応要素から読む（感情の中心＝反応、に忠実）</td></tr>
+  <tr><td>般化の階段</td><td>△ 残るが緩やか（1.36倍）。外付けを外した"素の実力"</td></tr>
+  <tr><td>侵入記憶（記憶のよみがえり）</td><td>✅ 双方向＋束ねで駆動（+68% / 束ねで×2.1）</td></tr>
+  <tr><td>中立・ポジで過剰反応</td><td>✗ 未解決（入口マッチングの別問題）</td></tr>
+</table></div>
+<p><b>次の一手：</b>忠実化はここで一段落。残るのは<b>入口の問題</b>（汎用語フィルタ＋ゲート校正）で、これは理論忠実化とは独立に進められる。ここを直すと、緩やかになった階段も引き締まる見込み。</p>
+<p style="font-size:13.5px;color:var(--muted)">※ 対話エージェント本体（字幕・可視化・プロンプト）はまだ旧・中核前提のコードが残っており、新オントロジーに追随させる作業が別途必要（測定パスは追随済み）。</p>
+</section>
+
+<footer>
+<b>シリーズ</b>：<a href="00_overview.html">はじめに読む</a> ／
+<a href="20260713_theory_audit.html">理論忠実性の棚卸し</a> ／
+<a href="20260713_ontology_redesign.html">忠実版オントロジー設計</a> ／ 本ページ＝忠実版の初回測定 ／
+<a href="20260713_corpus_sensitivity.html">感度チェック（日常を足すと）</a> ／ 旧モデル計測は <code>docs/archive/</code><br><br>
+<b>データ</b>：忠実グラフ <code>evaluation_v3/data/graph_faithful.json</code> ／
+測定 <code>evaluation_v3/results/metrics.csv</code>（500行）<br>
+<b>用語</b>：怖がり度＝反応要素の活性 ／ 侵入記憶＝負エピソードの活性 ／
+束ね＝BINDS（記憶↔S-R-M）／ 逆流＝双方向伝搬の逆向き成分
+</footer>
+
+</div>
+</body>
+</html>

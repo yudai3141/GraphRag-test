@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>はじめに読む — この研究は何をしているのか（予備知識なしで読めます）</title>
+<style>
+:root{
+  --ink:#26323B; --muted:#5C6E79; --paper:#FAFBFA; --card:#FFFFFF;
+  --line:#E2E7E5; --accent:#0E7490; --accent-soft:#EAF4F6;
+  --stim:#f58231; --resp:#4363d8; --mean:#e6194B; --epi:#2E8B3D; --l1:#B4325A;
+  --stim-t:#FDEFE3; --resp-t:#E9EDFB; --mean-t:#FCE8ED; --epi-t:#E8F6EA;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:16px; line-height:2.0; -webkit-font-smoothing:antialiased}
+.wrap{max-width:760px; margin:0 auto; padding:56px 24px 100px}
+.eyebrow{color:var(--accent); font-size:12.5px; font-weight:600; letter-spacing:.14em; margin:0 0 10px}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:30px; line-height:1.5; font-weight:600; margin:0 0 12px; text-wrap:balance}
+.lede{color:var(--muted); margin:0; font-size:16.5px; max-width:40em}
+.toc{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 20px; margin:32px 0 0}
+.toc b{font-size:13px; color:var(--muted); letter-spacing:.05em}
+.toc ol{margin:8px 0 0; padding-left:22px}
+.toc li{margin:3px 0}
+.toc a{color:var(--ink); text-decoration:none}
+.toc a:hover{color:var(--accent); text-decoration:underline}
+section{margin-top:66px; scroll-margin-top:20px}
+.sechead{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+.num{flex:none; width:32px; height:32px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; transform:translateY(5px)}
+h2{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:23px; font-weight:600; margin:0; line-height:1.55; text-wrap:balance}
+h3{font-size:16.5px; font-weight:700; margin:30px 0 6px}
+p{margin:14px 0; max-width:40em}
+.key{background:var(--accent-soft); border-radius:10px; padding:16px 20px; font-size:15px; margin:22px 0}
+.key b{color:var(--accent)}
+.analogy{border-left:3px solid var(--stim); background:var(--card); border-radius:0 8px 8px 0; padding:12px 18px; margin:20px 0; font-size:14.5px}
+.analogy b{color:#B05A10}
+figure{margin:26px 0; padding:0}
+.diagram{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 14px 10px; overflow-x:auto}
+figcaption{font-size:13px; color:var(--muted); margin-top:8px; line-height:1.7}
+svg text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0}
+.chip{display:inline-flex; align-items:center; gap:6px; font-size:13.5px; border:1px solid var(--line); border-radius:999px; padding:4px 12px; background:var(--card)}
+.chip .d{width:10px; height:10px; border-radius:50%}
+.tablebox{border:1px solid var(--line); border-radius:12px; overflow-x:auto; margin:22px 0; background:var(--card)}
+table{border-collapse:collapse; width:100%; font-size:14px; min-width:520px}
+th{text-align:left; font-size:12.5px; color:var(--muted); font-weight:600; padding:12px 15px 8px; border-bottom:1px solid var(--line)}
+td{padding:12px 15px; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.75}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600; white-space:nowrap}
+dl.gloss{margin:18px 0; padding:0}
+dl.gloss dt{font-weight:700; margin-top:14px; font-size:14.5px}
+dl.gloss dd{margin:2px 0 0; color:#3B4B56; font-size:14px}
+a{color:var(--accent)}
+footer{margin-top:76px; padding-top:22px; border-top:1px solid var(--line); font-size:13.5px; color:var(--muted)}
+.step-note{font-size:13.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">はじめに読む — 予備知識なしで読めます</p>
+<h1>心の傷（トラウマ）を、<br>コンピュータの「記憶の地図」で再現する</h1>
+<p class="lede">この研究が何をしていて、何を作り、何がわかったのかを、専門用語をひとつずつ説明しながら最初から辿るページです。心理学もプログラミングも前提にしていません。</p>
+
+<nav class="toc">
+  <b>もくじ</b>
+  <ol>
+    <li><a href="#s1">なぜこれを作るのか（研究の目的）</a></li>
+    <li><a href="#s2">そもそも「トラウマ（PTSD）」とは</a></li>
+    <li><a href="#s3">恐怖の正体は「つながりの網」（理論の話）</a></li>
+    <li><a href="#s4">それをコンピュータの地図にする</a></li>
+    <li><a href="#s5">思い出し方＝地図に広がる「波紋」</a></li>
+    <li><a href="#s6">再現したいこと：小さなきっかけ→飛躍した恐怖</a></li>
+    <li><a href="#s7">できているかどうか、どう測るか</a></li>
+    <li><a href="#s8">いま何がわかっているか</a></li>
+    <li><a href="#s9">用語のミニ辞典</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<section id="s1">
+<div class="sechead"><div class="num">1</div><h2>なぜこれを作るのか</h2></div>
+<p>心に強い傷を負った人（トラウマを抱えた人）の治療に、<b>曝露療法（ばくろりょうほう）</b>というものがあります。怖い記憶に少しずつ安全な形で向き合い、「もう今は危険ではない」と学び直していく治療です。</p>
+<p>この治療を行うセラピストは、練習が必要です。でも、本物の患者さんで練習するわけにはいきません。そこで——<b>「患者さんの役を演じてくれる、コンピュータの対話相手」</b>があれば、セラピストの訓練に使えます。</p>
+<div class="key"><b>この研究のゴール：</b>ただ患者さんのフリをするのではなく、<b>「心のしくみ」から症状が自然に出てくる</b>対話プログラムを作ること。フリ（演技）ではなく、記憶のしくみに根ざしているので、①反応に一貫性があり、②なぜその反応をするのか中身が見え、③将来は「治療で良くなっていく」過程まで再現できる、というのが狙いです。</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="s2">
+<div class="sechead"><div class="num">2</div><h2>そもそも「トラウマ（PTSD）」とは</h2></div>
+<p><b>PTSD（心的外傷後ストレス障害）</b>は、命に関わるような強い恐怖の体験（事故、災害、暴力など）のあとに起こる心の状態です。特徴的なのは、<b>その出来事が終わったあとも、日常の些細なことが引き金になって、当時の恐怖がよみがえってしまう</b>こと。</p>
+<p>たとえば——物音がしただけ、誰かがそばに立っただけ、といった<b>本当は危険でないこと</b>が、本人の中では強い恐怖や「また襲われる」という確信につながってしまう。頭では「大丈夫」とわかっていても、体と心が勝手に危険を感じてしまうのです。</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="s3">
+<div class="sechead"><div class="num">3</div><h2>恐怖の正体は「つながりの網」</h2></div>
+<p>心理学者の<b>フォア（Foa）とコザック（Kozak）</b>という研究者が1986年に提案した、有名な考え方があります。恐怖とは、頭の中の<b>「つながりの網（ネットワーク）」</b>だ、というものです。この網は3種類の情報でできています：</p>
+<div class="chips">
+  <span class="chip"><span class="d" style="background:var(--stim)"></span><b>きっかけ</b>（見た・聞いたもの）</span>
+  <span class="chip"><span class="d" style="background:var(--resp)"></span><b>体の反応</b>（動悸・緊張など）</span>
+  <span class="chip"><span class="d" style="background:var(--mean)"></span><b>意味</b>（それが何を意味するか）</span>
+</div>
+<p>これらが線でつながって網になっています。たとえば「暗い夜道（きっかけ）」→「心臓がドキドキ（反応）」→「危ない、襲われる（意味）」というふうに。</p>
+<div class="analogy"><b>クモの巣にたとえると：</b>網のどこか一点を指で触れると、巣全体がフルフル揺れますね。恐怖の網も同じで、<b>一部が刺激されると、つながった全体が一斉に反応します</b>。だから、ほんの小さなきっかけ（糸の端）を触っただけで、恐怖の中心（巣の真ん中）まで揺れが伝わってしまう。これがPTSDで「些細なことから恐怖がよみがえる」しくみの正体です。</div>
+<p>そして、この網が<b>「病んでいる」状態</b>とは——本来は無害なもの（ただの物音、知らない人）が、<b>間違って「危険」と強く結びついてしまっている</b>状態のこと。治療とは、この間違ったつながりを、安全な体験で結び直していくことなのです。</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="s4">
+<div class="sechead"><div class="num">4</div><h2>それをコンピュータの地図にする</h2></div>
+<p>この「つながりの網」を、コンピュータで扱える<b>地図（グラフ）</b>にします。地図は<b>点（ノード）</b>と、それをつなぐ<b>線（エッジ）</b>でできています。点には4種類あります：</p>
+<div class="chips">
+  <span class="chip"><span class="d" style="background:var(--stim)"></span>きっかけ（刺激）</span>
+  <span class="chip"><span class="d" style="background:var(--resp)"></span>体の反応</span>
+  <span class="chip"><span class="d" style="background:var(--mean)"></span>意味</span>
+  <span class="chip"><span class="d" style="background:var(--epi)"></span>過去の記憶（エピソード）</span>
+</div>
+<p>実際の地図は、ある性暴力被害の体験を綴った文章から、AIが自動で作りました。その一部を取り出すと、こんな1本の道になっています：</p>
+
+<figure>
+<div class="diagram">
+<svg width="700" height="150" viewBox="0 0 700 150" role="img" aria-label="見知らぬ男性というきっかけから、心拍が上がる、見られている、へつながり、あの日の出来事という過去の記憶にもつながる図">
+  <defs><marker id="oa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9AA7AE"/></marker></defs>
+  <g font-size="13">
+    <rect x="14" y="24" width="150" height="52" rx="10" fill="var(--stim-t)" stroke="var(--stim)" stroke-width="1.5"/>
+    <text x="89" y="45" text-anchor="middle" fill="#B05A10" font-size="10.5" font-weight="700">きっかけ</text>
+    <text x="89" y="64" text-anchor="middle" font-weight="600">見知らぬ男性</text>
+    <rect x="230" y="24" width="150" height="52" rx="10" fill="var(--resp-t)" stroke="var(--resp)" stroke-width="1.5"/>
+    <text x="305" y="45" text-anchor="middle" fill="var(--resp)" font-size="10.5" font-weight="700">体の反応</text>
+    <text x="305" y="64" text-anchor="middle" font-weight="600">心拍が上がる</text>
+    <rect x="446" y="24" width="164" height="52" rx="10" fill="var(--mean-t)" stroke="var(--mean)" stroke-width="1.5"/>
+    <text x="528" y="45" text-anchor="middle" fill="var(--mean)" font-size="10.5" font-weight="700">意味</text>
+    <text x="528" y="64" text-anchor="middle" font-weight="600">「見られている」</text>
+    <rect x="230" y="102" width="220" height="40" rx="10" fill="var(--epi-t)" stroke="var(--epi)" stroke-width="1.5"/>
+    <text x="340" y="120" text-anchor="middle" fill="var(--epi)" font-size="10.5" font-weight="700">過去の記憶</text>
+    <text x="340" y="136" text-anchor="middle" font-weight="600" font-size="12">あの日の出来事</text>
+  </g>
+  <g stroke="#9AA7AE" stroke-width="1.6" fill="none">
+    <line x1="166" y1="50" x2="226" y2="50" marker-end="url(#oa)"/>
+    <line x1="382" y1="50" x2="442" y2="50" marker-end="url(#oa)"/>
+    <line x1="150" y1="76" x2="250" y2="104" marker-end="url(#oa)"/>
+  </g>
+</svg>
+</div>
+<figcaption>地図の1本の道の例。実際にはこういう道が何百本もあり、網の目のようにつながっています。良い記憶（楽しかったこと）は、この恐怖の網とはつながっていません。</figcaption>
+</figure>
+<p>ちなみに「過去の記憶（エピソード）」は、フォアらの恐怖の網には元々含まれない部品です。でもこの研究では「記憶がよみがえる」現象を扱いたいので、<b>別の記憶理論から借りてきて、恐怖の網とは別の層として足しています</b>（両者は線でつないであります）。</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="s5">
+<div class="sechead"><div class="num">5</div><h2>思い出し方＝地図に広がる「波紋」</h2></div>
+<p>では、この地図はどうやって「思い出す」のでしょうか。会話の相手が何か言うと——</p>
+<figure>
+<div class="diagram">
+<svg width="520" height="180" viewBox="0 0 520 180" role="img" aria-label="言葉が地図に石を落とし、波紋が広がって恐怖に届く様子">
+  <text x="20" y="28" font-size="13" font-weight="600" fill="#26323B">「知らない人が立ってるね」</text>
+  <g fill="none" stroke="var(--mean)">
+    <circle cx="120" cy="110" r="16" stroke-opacity=".9" stroke-width="2"/>
+    <circle cx="120" cy="110" r="40" stroke-opacity=".55" stroke-width="1.7"/>
+    <circle cx="120" cy="110" r="66" stroke-opacity=".3" stroke-width="1.5"/>
+    <circle cx="120" cy="110" r="94" stroke-opacity=".15" stroke-width="1.3"/>
+  </g>
+  <circle cx="120" cy="110" r="5" fill="var(--mean)"/>
+  <text x="120" y="150" font-size="11" text-anchor="middle" fill="#5C6E79">近い「きっかけ」に石が落ちる</text>
+  <g>
+    <circle cx="300" cy="70" r="5" fill="var(--resp)"/><circle cx="360" cy="120" r="5" fill="var(--mean)"/>
+    <circle cx="330" cy="150" r="5" fill="var(--epi)"/>
+  </g>
+  <circle cx="440" cy="80" r="9" fill="var(--l1)"/>
+  <circle cx="440" cy="80" r="15" fill="none" stroke="var(--l1)" stroke-opacity=".4" stroke-width="2"/>
+  <text x="440" y="52" font-size="11.5" text-anchor="middle" fill="var(--l1)" font-weight="700">恐怖に届く</text>
+  <text x="440" y="112" font-size="11" text-anchor="middle" fill="#5C6E79">体の反応が強まる</text>
+</svg>
+</div>
+<figcaption>言葉が地図に「石」を落とし、そこから「波紋」が線をつたって広がっていく。波が体の反応まで強く届くと、それが「怖がっている」状態です。</figcaption>
+</figure>
+<p>この波紋の広がりを、専門的には<b>「拡散活性（かくさんかっせい）」</b>と呼びます。難しく聞こえますが、やっていることは「石を落として波紋を広げる」だけ。乱数もその場のAI判断も入らないので、<b>同じ言葉を入れれば毎回同じ結果</b>になります。</p>
+<div class="analogy"><b>「怖がり度」はどこで測る？</b>フォアらの理論では、恐怖という感情の主役は<b>体の反応</b>（動悸・緊張など）です。だからこの研究でも、波が「体の反応」の点にどれだけ強く届いたかを<b>「怖がり度」</b>として測ります。</div>
+</section>
+
+<!-- ============================================================ -->
+<section id="s6">
+<div class="sechead"><div class="num">6</div><h2>再現したいこと</h2></div>
+<p>目標は、PTSDに特徴的な<b>「小さなきっかけ → 心の中で一気に連想 → 飛躍した恐怖」</b>を再現することです。ポイントは、途中の連想は<b>口に出さず</b>、飛躍した結論だけが言葉に出ること。</p>
+<div class="tablebox"><table>
+  <tr><th>小さなきっかけ（外から見える）</th><th>心の中（見えない連想）</th><th>口に出る言葉</th></tr>
+  <tr><td>知らない男性がそばにいる</td><td>体がこわばる→見られている→加害者だ</td><td>「あの人がいる。危ない」</td></tr>
+  <tr><td>夫がキッチンの引き出しを開けた</td><td>刃物→あの時→殺される</td><td>「殺される」</td></tr>
+</table></div>
+<p>外から見ると「え、なんで急に？」と思うような反応。でも本人の中では、地図の上を波紋が一瞬で駆け抜けて、恐怖に達している。その<b>内側の連想を地図で再現し、外に出る言葉は飛躍した結論だけ</b>にする、というのが再現の狙いです。</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="s7">
+<div class="sechead"><div class="num">7</div><h2>できているか、どう測るか</h2></div>
+<p>「ちゃんとPTSDらしく怖がるか」を確かめるため、<b>100個の短い「ひとこと」</b>を用意して、地図に順番に入れて反応を記録します。ひとことは、トラウマとの関係の濃さで<b>5段階</b>に分けてあります：</p>
+<div class="tablebox"><table>
+  <tr><th>レベル</th><th>意味</th><th>例</th></tr>
+  <tr><td>L1（濃い）</td><td>トラウマを直接思い出させる</td><td>「後ろから誰かついて来てる」</td></tr>
+  <tr><td>L2</td><td>危険を連想しうる</td><td>「後ろに男の人が立ってたよ」</td></tr>
+  <tr><td>L3</td><td>状況次第で引っかかる</td><td>「今日、帰り少し遅くなるね」</td></tr>
+  <tr><td>L4（中立）</td><td>トラウマと無関係</td><td>「晩ごはん、うどんでいい？」</td></tr>
+  <tr><td>L5（前向き）</td><td>安心・楽しい話題</td><td>「お茶いれたよ、ひと息つこう」</td></tr>
+</table></div>
+<p>健康な反応なら、L1では強く怖がり、L4・L5ではほとんど怖がらないはず。PTSDらしさが出ていれば、<b>関係の薄いものにまで反応が広がる</b>（＝恐怖が過剰に広がる）はずです。この「レベルごとの怖がり度」を並べると、階段のようなグラフになります。それがこの研究の中心的な成果物です。</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="s8">
+<div class="sechead"><div class="num">8</div><h2>いま何がわかっているか</h2></div>
+<p>最初に作ったモデルには、実は<b>理論的な根拠のない"手作りの細工"</b>がいくつも入っていました。そこで、フォアらの理論の原典に当たり直し、<b>理論に忠実な形に作り直しました</b>。その結果：</p>
+<div class="tablebox"><table>
+  <tr><th>わかったこと</th><th>中身</th></tr>
+  <tr><td>✅ 理論に忠実にできた</td><td>地図の点と線を、すべて理論に対応する部品だけにした</td></tr>
+  <tr><td>✅ 怖がりの階段が出た</td><td>トラウマに近いひとことほど強く怖がる、という段差が確認できた（ただし緩やか）</td></tr>
+  <tr><td>✅ 記憶がよみがえる</td><td>恐怖から過去のトラウマ記憶へ「戻る」流れ（＝フラッシュバック的なよみがえり）が動いた</td></tr>
+  <tr><td>✗ 残る課題</td><td>前向きな話題や中立な話題にも過剰に反応してしまう。原因は「入口」の作りにあり、次の課題</td></tr>
+</table></div>
+<p>詳しい数字とグラフは、次の3つのページにあります（このページの続きとして読めます）：</p>
+<ul>
+  <li><a href="20260713_theory_audit.html">理論忠実性の棚卸し</a> — もとのモデルの、どこが理論でどこが手作りだったかの点検</li>
+  <li><a href="20260713_ontology_redesign.html">忠実版オントロジー設計</a> — 地図の部品をどう作り直したか</li>
+  <li><a href="20260713_faithful_results.html">忠実版の初回測定</a> — 作り直して測った結果</li>
+</ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="s9">
+<div class="sechead"><div class="num">9</div><h2>用語のミニ辞典</h2></div>
+<dl class="gloss">
+  <dt>PTSD（心的外傷後ストレス障害）</dt>
+  <dd>強い恐怖体験のあと、些細な引き金で当時の恐怖がよみがえってしまう心の状態。</dd>
+  <dt>曝露療法</dt>
+  <dd>怖い記憶に安全な形で少しずつ向き合い、「今は危険でない」と学び直す治療。</dd>
+  <dt>恐怖構造（フォア＆コザックの理論）</dt>
+  <dd>恐怖を「きっかけ・体の反応・意味」がつながった網として捉える考え方。この研究の土台。</dd>
+  <dt>グラフ（地図）／ノード（点）／エッジ（線）</dt>
+  <dd>つながりをコンピュータで表す形。点がものごと、線がつながり。</dd>
+  <dt>拡散活性（波紋）</dt>
+  <dd>ある点が刺激されると、線をつたって周りの点へ活性が広がるしくみ。「思い出し」の正体。</dd>
+  <dt>怖がり度</dt>
+  <dd>波紋が「体の反応」の点にどれだけ強く届いたか。恐怖の強さの指標。</dd>
+  <dt>オントロジー</dt>
+  <dd>地図にどんな種類の点と線を使うか、という設計の枠組みそのもの。</dd>
+  <dt>エピソード（記憶）</dt>
+  <dd>「あの日の出来事」のような、具体的な過去の体験の記憶。</dd>
+</dl>
+</section>
+
+<footer>
+このページは、この研究に初めて触れる人のための入り口です。より詳しい分析は
+<a href="20260713_theory_audit.html">理論の棚卸し</a>・<a href="20260713_ontology_redesign.html">設計</a>・<a href="20260713_faithful_results.html">測定結果</a> のページへ。<br>
+（過去の古いモデルでの測定記録は <code>archive/</code> フォルダにあります。）
+</footer>
+
+</div>
+</body>
+</html>

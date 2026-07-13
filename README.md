@@ -26,22 +26,27 @@ PTSD とその回復過程（曝露療法による恐怖消去学習）を計算
 |---|---|---|---|
 | **Stage 0** | `simulation/` | GraphRAG 基準実装。テキスト→知識グラフ→ハイブリッド検索の土台 | 実装済み |
 | **Stage 1** | `actr_initial_integration_v1/` | 検索を embedding 類似から **ACT-R activation**（時間減衰＋拡散活性）へ置換。記憶を「エピソード記憶／意味記憶」の2層で構造化 | 実装済み |
-| **Stage 2** | `actr_foa_kozak_v2/` | 想起の連想を **Foa & Kozak の恐怖構造モデル**へ置換。刺激・反応・意味づけの結合で、中立な入力でも過去の嫌な記憶や「危険／無力」へ連想が伸びる（PTSD らしさ）。将来は会話でエッジを張り替える（恐怖消去学習） | 実装中（Stage 1＝連想再現は実装済み） |
+| **Stage 2** | `actr_foa_kozak_v2/` | 想起の連想を **Foa & Kozak の恐怖構造モデル**へ置換。刺激・反応・意味づけの結合で、中立な入力でも過去の嫌な記憶や危険の意味づけへ連想が伸びる（PTSD らしさ）。将来は会話でエッジを張り替える（恐怖消去学習） | 実装中（Stage 1＝連想再現は実装済み） |
+| **評価** | `evaluation_v3/` | 構築した恐怖構造グラフ自体の妥当性を定量評価（実験1）。この過程でオントロジーを**理論に忠実な形へ作り直し**（中核層の撤去・意味の開語彙化・二層化・無向対称の伝搬） | 実装済み |
 
 ### Stage 2 の狙い（恐怖構造と恐怖消去学習のモデル化）
 
 PTSD らしさは客観的な出来事ではなく、**刺激・反応・意味づけの過剰な結合**（一部の刺激だけで
-恐怖構造全体が発火する）に現れる（Foa & Kozak）。これをグラフ上では、
+恐怖構造全体が発火する）に現れる（Foa & Kozak）。理論忠実化後のオントロジーは**二層**で表現する：
 
 ```
-刺激 ──EVOKES──▶ 反応 ──MEANS──▶ 具体的意味 ──ROLLS_UP──▶ 中核評価（危険/BAD/無力/終わらない）
-   └──RECALLS──▶ 過去の嫌な記憶 ──LEADS_TO──▶ 別の嫌な記憶（負→負のみ）
+恐怖構造レイヤ（Foa/Lang）:
+  刺激 ──EVOKES──▶ 反応 ──MEANS──▶ 意味（開語彙・少数カテゴリに丸めない）
+  刺激 ──CO_OCCURS──▶ 別の刺激 ／ 刺激 ──SIMILAR──▶ 意味的に近い刺激（般化）
+エピソード記憶レイヤ（二重表象理論）:
+  刺激 ──RECALLS──▶ 過去エピソード ──BINDS──▶ その刺激-反応-意味（記憶＝S-R-Mの束）
 ```
 
-と表現する。あらゆる連想が**少数の負の中核へ収束**し、良い記憶だけがそこへ経路を持たないため、
-中立な話題でも出力が危険・無力の色に染まる。曝露療法（恐怖消去学習）は、ノードを消すのではなく
-この**病理的なエッジを弱め、意味づけを張り替える**過程としてモデル化する（＝v2 Stage 2）。
-詳細は [`actr_foa_kozak_v2/docs/`](actr_foa_kozak_v2/docs/) を参照。
+結合は連想（無向・対称）とし、エッジ重みは一律とする（連想強度の差・方向の非対称はモデル化しない）。
+怖がり度の指標は**反応要素の活性**から読む（生体情報理論）。曝露療法（恐怖消去学習）は、ノードを
+消すのではなくこの**病理的なエッジを弱め、意味づけを張り替える**過程としてモデル化する（＝v2 Stage 2）。
+理論忠実化の経緯・評価の詳細は [`evaluation_v3/`](evaluation_v3/README.md) と
+[`evaluation_v3/docs/00_overview.html`](evaluation_v3/docs/00_overview.html) を参照。
 
 ---
 
@@ -170,4 +175,21 @@ Stage 1 を土台に、想起の「連想」部分を **Foa & Kozak の恐怖構
 uv run python -m actr_foa_kozak_v2.memory.builder
 # 2. コンソールで対話
 uv run python -m actr_foa_kozak_v2.main
+```
+
+---
+
+## 評価 — `evaluation_v3/`（恐怖構造グラフの定量評価＋理論忠実化）
+
+`actr_foa_kozak_v2` の恐怖構造グラフ自体が「トラウマに関連するほど強く、無関係には弱く」
+反応するか（＝グラフの妥当性）を、トラウマとの近さで層化した刺激バッテリー（100発話）で
+定量評価する（論文の実験1）。この検討過程で、Foa & Kozak / Lang の一次理論に当たり直し、
+オントロジーを理論に忠実な形へ作り直した（中核層の撤去・意味の開語彙化・二層化・無向対称）。
+設計・結果・図解は [`evaluation_v3/README.md`](evaluation_v3/README.md) と
+`evaluation_v3/docs/`（`00_overview.html` が入口）を参照。
+
+```bash
+uv run python -m evaluation_v3.snapshot evaluation_v3/data/graph_faithful.json  # グラフを保存
+uv run python -m evaluation_v3.cue_battery                                       # 刺激バッテリー生成
+uv run python -m evaluation_v3.runner evaluation_v3/data/graph_faithful.json     # 一括測定
 ```

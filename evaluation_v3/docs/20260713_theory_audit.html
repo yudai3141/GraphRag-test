@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>理論忠実性の棚卸し — 実装のどこが理論で、どこが我々の発明か</title>
+<style>
+:root{
+  --ink:#26323B; --muted:#5C6E79; --paper:#FAFBFA; --card:#FFFFFF;
+  --line:#E2E7E5; --accent:#0E7490; --accent-soft:#EAF4F6;
+  --ok:#2E7D46; --ok-t:#E7F3EB; --mid:#B26A00; --mid-t:#FBEEDD; --bad:#B4325A; --bad-t:#FBEAEF;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:15.5px; line-height:1.95; -webkit-font-smoothing:antialiased}
+.wrap{max-width:820px; margin:0 auto; padding:56px 24px 96px}
+.eyebrow{color:var(--accent); font-size:12.5px; font-weight:600; letter-spacing:.14em; margin:0 0 10px}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:28px; line-height:1.5; font-weight:600; margin:0 0 10px; text-wrap:balance}
+.lede{color:var(--muted); margin:0; max-width:44em}
+section{margin-top:60px}
+.sechead{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+.num{flex:none; width:30px; height:30px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; transform:translateY(4px)}
+h2{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:21px; font-weight:600; margin:0; line-height:1.6; text-wrap:balance}
+h3{font-size:16px; font-weight:700; margin:28px 0 6px}
+p{margin:12px 0; max-width:44em}
+.note{background:var(--accent-soft); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.note b{color:var(--accent)}
+.quote{border-left:3px solid var(--accent); background:var(--card); border-radius:0 8px 8px 0;
+  padding:12px 18px; margin:18px 0; font-size:14px; color:#3B4B56}
+.quote .src{display:block; font-size:12px; color:var(--muted); margin-top:6px}
+.tablebox{border:1px solid var(--line); border-radius:12px; overflow-x:auto; margin:22px 0; background:var(--card)}
+table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:640px}
+th{text-align:left; font-size:12px; color:var(--muted); font-weight:600; padding:12px 14px 8px; border-bottom:1px solid var(--line); white-space:nowrap}
+td{padding:12px 14px; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.7}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600}
+.tag{display:inline-block; font-size:11.5px; font-weight:700; border-radius:6px; padding:2px 8px; white-space:nowrap}
+.t-ok{background:var(--ok-t); color:var(--ok)}
+.t-mid{background:var(--mid-t); color:var(--mid)}
+.t-bad{background:var(--bad-t); color:var(--bad)}
+.verdict{display:flex; gap:12px; flex-wrap:wrap; margin:20px 0}
+.vcard{flex:1 1 200px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; border-top:3px solid var(--c,var(--line))}
+.vcard .h{font-weight:700; font-size:14.5px; margin-bottom:4px}
+.vcard .n{font-size:13px; color:var(--muted); line-height:1.7}
+.big{font-size:26px; font-weight:700; font-variant-numeric:tabular-nums}
+ol.fix{margin:22px 0; padding:0; list-style:none; counter-reset:fx}
+ol.fix li{counter-increment:fx; position:relative; padding:16px 18px 14px 56px;
+  background:var(--card); border:1px solid var(--line); border-radius:10px; margin-bottom:12px}
+ol.fix li::before{content:counter(fx); position:absolute; left:18px; top:16px; width:26px; height:26px;
+  border-radius:50%; background:var(--accent-soft); color:var(--accent); font-size:13.5px; font-weight:700;
+  display:flex; align-items:center; justify-content:center}
+ol.fix b{display:block; font-size:15px; margin-bottom:2px}
+ol.fix span{font-size:13.5px; color:#3B4B56}
+code{background:var(--accent-soft); border-radius:5px; padding:1px 7px; font-size:13px}
+a{color:var(--accent)}
+footer{margin-top:72px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">実験1・理論忠実性の棚卸し — 2026年7月13日</p>
+<h1>実装のどこが理論で、<br>どこが我々の発明か</h1>
+<p class="lede">「逆方向0.7倍とか感覚な気がする。理論に忠実じゃないところを全部洗い出して」という指摘を受けた監査です。結論を先に言うと——<b>指摘は正しく、0.7だけでなく実装の相当部分が理論的根拠のない我々の設計判断でした。</b>まず一次理論を文献で確認し、その物差しで実装の全判断を「忠実／部分的／発明」に分類します。<br><br><b>この研究に初めて触れる方は、まず <a href="00_overview.html">はじめに読む（全体像）</a> からどうぞ。</b></p>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">1</div><h2>まず理論が実際に何を言っているか（文献確認）</h2></div>
+<p>記憶に頼らず、Foa &amp; Kozak (1986) とその土台の Lang（生体情報理論）、および拡散活性の原典（Collins &amp; Loftus 1975）を当たりました。要点は5つです。</p>
+
+<h3>A. 恐怖構造は「向きのない連想ネットワーク」で、結びつきは双方向</h3>
+<div class="quote">拡散活性理論では、概念はノード、関係は<b>双方向（bi-directional）の連想リンク</b>で表され、活性は結びつきに沿って両方向へ広がる。リンクの強さはノード間で異なり、強いものも弱いものもある。
+<span class="src">Collins &amp; Loftus (1975), A Spreading-Activation Theory of Semantic Processing（Foa/Lang が土台にした枠組み）</span></div>
+<p>→ <b>「刺激→反応→意味→危険」の一方通行パイプラインは理論に反する。</b>双方向にした前回の判断は方向として正しい。ただし後述のとおり「一律0.7倍」は理論にない。</p>
+
+<h3>B. リンクの強さは「経験の中での共起頻度・条件づけ」で決まり、一様ではない</h3>
+<p>強さがノードごとに違うこと自体が理論の中核で、その強さは<b>いっしょに経験された頻度</b>に由来する（Collins-Loftus／ACT-R のベースレベル）。</p>
+<p>→ <b>全エッジの重みを一律1.0にしている現実装は、理論の最も重要な部分を捨てている。</b></p>
+
+<h3>C. 「意味」は開かれた解釈命題で、単一の「危険ハブ」ではない</h3>
+<p>Lang は意味を「昆虫・危険・噛む」のような<b>開かれた解釈情報</b>とし、刺激・反応要素に付随すると述べる。PTSDの例では「すべての男は加害者だ」のような<b>個別の誤った意味</b>が挙がる。少数の固定カテゴリーへ収束する構造でも、単一のDANGERノードでもない。</p>
+
+<h3>D. 病的さは「構造の形」ではなく「連想が誤っていて強いこと」に宿る</h3>
+<div class="quote">恐怖構造が病的になるのは、刺激・反応・意味の結びつきが現実を正しく反映せず、<b>無害な刺激や反応が危険と誤って解釈される</b>ときである。PTSDでは、トラウマ関連の有害刺激と、それに似た無害な刺激とが誤って結びつく。
+<span class="src">Foa &amp; Kozak (1986) の記述（iResearchNet の解説より引用）</span></div>
+<p>→ 病的さ＝<b>誤った・強い連想</b>。これは我々が外付けした「危険引き寄せ」が代役していたもの。本来は連想の強さから生じるべきで、外付けブーストで模すのは理論的に筋が違う。</p>
+
+<h3>E. 入口は部分一致で全体が発火／出口で分割（fan効果）は理論どおり</h3>
+<p>一部の手がかりが構造全体を活性化させる（部分マッチ）、活性は出力リンクに分かれて広がる（fan効果）——ここは拡散活性理論そのもので、現実装も一致している。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">2</div><h2>実装の全判断を分類する</h2></div>
+<p>上の物差し（A〜E）で、いま動いている設計判断を一つずつ採点しました。<span class="tag t-ok">忠実</span>＝理論に根拠あり／<span class="tag t-mid">部分的</span>＝発想は理論的だが数値や形が恣意的／<span class="tag t-bad">発明</span>＝理論に対応物がない我々の追加。</p>
+
+<div class="tablebox"><table>
+  <tr><th>実装の判断</th><th>判定</th><th>理論に照らして</th></tr>
+  <tr><td>一方通行の伝搬（既定 <code>backward=0</code>）</td><td><span class="tag t-bad">発明</span></td><td>Aに反する。連想は双方向のはず。前回の双方向化は正しい方向の修正</td></tr>
+  <tr><td>逆方向 <code>0.7倍</code> の一律係数</td><td><span class="tag t-bad">発明</span></td><td>指摘どおり根拠なし。理論は「強さはリンクごとに違う」（B）と言うのであって、順逆で一律の比があるとは言っていない</td></tr>
+  <tr><td>全エッジ重み一律 <code>1.0</code></td><td><span class="tag t-bad">発明</span></td><td><b>最大の不忠実</b>。Bの「頻度で決まる可変の連想強度」を完全に捨てている</td></tr>
+  <tr><td>関係タイプ別の重み <code>REL_WEIGHT</code>（EVOKES=1.0, LEADS_TO=1.5…）</td><td><span class="tag t-bad">発明</span></td><td>理論は関係の「種類」に強弱を付けない。強いのは個々の連想であって型ではない。手調整の数値</td></tr>
+  <tr><td>中核評価を4種の閉集合に固定（DANGER/BAD/…）</td><td><span class="tag t-bad">発明</span></td><td>Cに反する。意味は開かれた命題。少数カテゴリーへの収束は我々の設計</td></tr>
+  <tr><td>単一DANGERハブ＋<code>ROLLS_UP</code>収束</td><td><span class="tag t-bad">発明</span></td><td>Cに反する。単一の危険ノードは理論にない</td></tr>
+  <tr><td>危険引き寄せ <code>danger_pull / DANGER_BIAS</code></td><td><span class="tag t-bad">発明</span></td><td>Dの「強い誤連想」を外付けの距離ブーストで代役。理論的には強さから創発すべきで、これは理論の外の細工</td></tr>
+  <tr><td>負→負エッジ <code>LEADS_TO</code>（最強1.5）</td><td><span class="tag t-bad">発明</span></td><td>「嫌な記憶は嫌な記憶へ」はPTSDらしさの手当てで、理論に直接の対応物なし</td></tr>
+  <tr><td>意味の2層化（具体的意味→中核）</td><td><span class="tag t-bad">発明</span></td><td>理論は意味を層に分けない。可視化・収束のための設計</td></tr>
+  <tr><td>引き金ゲート <code>is_triggered</code></td><td><span class="tag t-bad">発明</span></td><td>理論は連続的な活性のみ。破局/平静の二値切替は一般性のための工学的追加</td></tr>
+  <tr><td>1ホップ減衰 <code>HOP_DECAY=0.6</code>・3ホップ打切り</td><td><span class="tag t-mid">部分的</span></td><td>距離で活性が減衰するのは理論的（正しい）。<b>0.6や3という値</b>は恣意的な調整</td></tr>
+  <tr><td>刺激般化 <code>SIMILAR</code>（似た刺激を結ぶ）</td><td><span class="tag t-mid">部分的</span></td><td>刺激般化はDの現象そのもの（正しい）。ただし<b>コサイン0.45・重み0.9</b>は恣意的</td></tr>
+  <tr><td>入口＝埋め込みコサインで部分一致</td><td><span class="tag t-mid">部分的</span></td><td>部分マッチで発火（E）は理論的。ただし「埋め込みの近さ＝連想」はモデル上の代理で、閾値0.20等は恣意的</td></tr>
+  <tr><td>記憶の束ね <code>BINDS</code>（記憶=S-R-Mの束）</td><td><span class="tag t-mid">部分的</span></td><td>「記憶＝束ねられた命題構造」はLang/Foaに<b>忠実</b>。ただし現実装は刺激の意味で近似合成しており、抽出しなおしていない</td></tr>
+  <tr><td>出口で活性を分割（fan効果）</td><td><span class="tag t-ok">忠実</span></td><td>Eどおり</td></tr>
+  <tr><td>部分一致で構造が発火・活性が減衰しながら拡散</td><td><span class="tag t-ok">忠実</span></td><td>拡散活性の基本形どおり</td></tr>
+</table></div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">3</div><h2>全体像：不忠実は3つのかたまりに集約される</h2></div>
+<div class="verdict">
+  <div class="vcard" style="--c:var(--bad)">
+    <div class="big" style="color:var(--bad)">①</div>
+    <div class="h">連想の「強さ」が無い</div>
+    <div class="n">全エッジ一律1.0、逆0.7、関係別REL_WEIGHT。これらは全部「強さは頻度で決まり可変」（理論B）の代用の失敗。<b>本来ここが1つあれば、下の②はほぼ不要になる。</b></div>
+  </div>
+  <div class="vcard" style="--c:var(--bad)">
+    <div class="big" style="color:var(--bad)">②</div>
+    <div class="h">危険を外付けで盛っている</div>
+    <div class="n">DANGERハブ＋4中核の閉集合＋danger_pull＋LEADS_TO。脅威中心性を構造の外から手で作っている。理論では強い誤連想（D）から創発すべきもの。</div>
+  </div>
+  <div class="vcard" style="--c:var(--mid)">
+    <div class="big" style="color:var(--mid)">③</div>
+    <div class="h">工学的な便宜追加</div>
+    <div class="n">引き金ゲート、意味の2層化、各種の閾値。再現・一般性・可視化のための実務的追加で、理論の主張ではない（悪いとは限らないが「理論だ」と言ってはいけない）。</div>
+  </div>
+</div>
+<p><b>核心：</b>①と②は独立した欠陥ではなく、<b>同じ1つの欠落の裏表</b>です。連想の強さ（①）を実装していないから、脅威への偏りが構造から出てこず、それを外付け（②）で補っていた。前回の検証で「双方向にしたらメリハリが2.1倍→1.6倍に落ちた」のは、まさに②の外付けを外したのに①の本来の力を入れていないから、という理屈で綺麗に説明がつきます。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">4</div><h2>「0.7倍」への最終判定</h2></div>
+<div class="note"><b>判定：理論的根拠なし（あなたの直感が正しい）。</b>理論が言うのは「連想の強さはリンクごとに異なり、経験の頻度で決まる」。順方向・逆方向で一律の比、という概念は理論に存在しません。0.7は前回私が置いた仮の数字で、感覚そのものでした。<br><br>
+正しい姿は、<b>順逆で比を決め打ちするのをやめ、各リンクに頻度由来の強さを持たせて、双方向はその同じ強さで対称に流す</b>こと（強い連想は両方向に強く、弱い連想は両方向に弱い）。順逆の非対称が本当に要るかは、その上で改めて検証する話です。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">5</div><h2>理論忠実化の優先順位</h2></div>
+<p>洗い出しから、直す順番は自明になりました。上ほど効果が大きく、かつ理論的根拠が固い。</p>
+<ol class="fix">
+  <li><b>連想強度をエッジに持たせる（最優先・かたまり①を解消）</b>
+    <span>地図を作るとき、同じ結びつきが繰り返し抽出されたら重みを加算する（強さ＝共起頻度、理論B）。双方向は順逆同じ強さで対称に流す（0.7を廃止）。これ1つで、外付けの危険引き寄せ・関係別重み・LEADS_TOの大半が不要になる見込み。<b>地図の作り直しが必要。</b></span></li>
+  <li><b>危険引き寄せ（danger_pull）を撤去し、創発するか再検証（かたまり②）</b>
+    <span>①を入れた状態で脅威中心性が構造から出るかを、同じ100キューで測る。出れば理論的に正当化できる。出なければ「なぜ足りないか」を構造の問題として診断する（外付けに戻さない）。</span></li>
+  <li><b>中核の閉集合・単一ハブを見直す（かたまり②）</b>
+    <span>4カテゴリーへの収束は可視化には便利だが理論には反する。「意味は開いた命題のまま、危険中心性は連想の密度・強さで表す」方向を検討。ここは研究の主張に関わるので井野先生と相談したい論点。</span></li>
+  <li><b>記憶の束ね（BINDS）を近似合成でなく抽出で張る</b>
+    <span>「記憶＝S-R-Mの束」はLang/Foaに忠実な数少ない部分。いまは刺激の意味で近似しているのを、抽出フラグメントから直接束ねる。①の作り直しと同時にやれる。</span></li>
+  <li><b>工学的追加（かたまり③）は「理論ではない」と明示して残す</b>
+    <span>引き金ゲート等は再現・一般性に必要なら残してよいが、論文では「理論の主張」と「工学的近似」を明確に分けて書く。これ自体が誠実さの担保になる。</span></li>
+</ol>
+<div class="note"><b>次の一手：</b>①（連想強度の実装＋地図の作り直し）から着手するのが、理論的にも効果的にも最善。作り直したら、いつもの100キューで測って前回・従来と三者比較します。着手してよければ builder に頻度加算を実装します。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">6</div><h2>オントロジー（ノード・エッジの種類）は忠実か</h2></div>
+<p>伝わり方とは別に、「どんな種類の点と線で地図を組んでいるか」自体を採点します。結論は<b>背骨は忠実、ただし2つの層を後付けしている</b>。</p>
+
+<h3>ノードの種類</h3>
+<div class="tablebox"><table>
+  <tr><th>ノード</th><th>判定</th><th>理論に照らして</th></tr>
+  <tr><td>FkStimulus（刺激）</td><td><span class="tag t-ok">忠実</span></td><td>Lang の「刺激情報」そのもの</td></tr>
+  <tr><td>FkResponse（反応）</td><td><span class="tag t-ok">忠実</span></td><td>Lang の「反応情報（生理・行動・言語）」。むしろ理論では<b>感情の中心</b>とされる要素</td></tr>
+  <tr><td>FkMeaning（意味）</td><td><span class="tag t-ok">忠実</span></td><td>Lang の「意味・解釈情報」</td></tr>
+  <tr><td>FkCore（中核4種の閉集合）</td><td><span class="tag t-bad">発明</span></td><td>「危険」という<b>内容</b>は理論的（病理＝無害を危険と誤解）だが、それを<b>別階層・固定4種</b>にしたのは我々の設計。理論の意味は開いた命題</td></tr>
+  <tr><td>FkEpisode（エピソード記憶）</td><td><span class="tag t-mid">別理論</span></td><td>Foa/Lang の恐怖構造は「刺激-反応-意味の命題プログラム」であって<b>自伝的エピソードの倉庫ではない</b>。エピソード記憶は別系統（Ehlers-Clark / Brewin / ACT-R）からの輸入</td></tr>
+</table></div>
+
+<h3>エッジの種類</h3>
+<div class="tablebox"><table>
+  <tr><th>エッジ</th><th>判定</th><th>理論に照らして</th></tr>
+  <tr><td>EVOKES（刺激→反応）</td><td><span class="tag t-ok">忠実</span></td><td>刺激-反応連想。理論の中核</td></tr>
+  <tr><td>MEANS（刺激/反応→意味）</td><td><span class="tag t-ok">忠実</span></td><td>刺激・反応の意味づけ連想。両方を源にできる点も理論どおり</td></tr>
+  <tr><td>CO_OCCURS（刺激↔刺激）</td><td><span class="tag t-ok">忠実</span></td><td>刺激-刺激連想。病理の「誤った刺激-刺激結合」の温床でもある</td></tr>
+  <tr><td>SIMILAR（似た刺激↔刺激）</td><td><span class="tag t-mid">部分的</span></td><td>刺激般化は理論にある現象（トラウマ刺激が似た無害刺激へ広がる＝病理そのもの）。ただし<b>cos基盤</b>は「意味的近さ」であって条件づけ般化とはズレる</td></tr>
+  <tr><td>ROLLS_UP（意味→中核）</td><td><span class="tag t-bad">発明</span></td><td>意味の2層化。理論に対応物なし</td></tr>
+  <tr><td>RECALLS（刺激→エピソード）</td><td><span class="tag t-mid">別理論</span></td><td>エピソード輸入に依存</td></tr>
+  <tr><td>BINDS（エピソード↔意味/反応）</td><td><span class="tag t-mid">発想は忠実</span></td><td>「記憶＝束ねられた刺激-反応-意味」は Lang に忠実。ただし FkEpisode を前提にした合成</td></tr>
+  <tr><td>LEADS_TO（負→負エピソード）</td><td><span class="tag t-bad">発明</span></td><td>「嫌な記憶は嫌な記憶へ」。理論に対応物なし。エピソード間の時系列/感情価の鎖</td></tr>
+</table></div>
+
+<div class="note"><b>読み解き：</b>オントロジーは<b>2つのグループ</b>に割れる。<br>
+① <b>本物の恐怖構造</b>＝刺激・反応・意味の3ノード＋EVOKES/MEANS/CO_OCCURS。ここは Lang/Foa に忠実。<br>
+② <b>後付けの2層</b>＝(a) 中核評価の層（FkCore/ROLLS_UP・我々の発明）、(b) エピソード記憶の層（FkEpisode/RECALLS/LEADS_TO/BINDS・別理論からの輸入）。</div>
+
+<h3>さらに深い2つのズレ</h3>
+<p><b>ズレ1：感情の在りかが逆転している。</b>生体情報理論では<b>反応要素（動悸などの身体反応）が感情の最も重要な担い手</b>とされる。ところが我々は「怖がり度」を FkResponse ではなく<b>発明した FkCore（危険）から読み出している</b>。理論に忠実にするなら、恐怖の指標は反応要素の活性に置くのが筋、という論点。</p>
+<p><b>ズレ2：恐怖構造とエピソード記憶を融合させている。</b>Foa/Lang の恐怖構造は命題ネットワークで、トラウマの自伝的記憶そのものは扱わない。我々はそこにエピソード記憶を混ぜた。これは<b>悪いとは限らない</b>（あなたの ACT-R 研究＝想起・忘却モデルと自然に接続する強み）。ただし論文では「Foa のオントロジー」ではなく<b>「Foa の恐怖構造 × エピソード記憶モデルの意図的な融合」</b>と正確に位置づけるべき。</p>
+
+<div class="warn"><b>総合判定：</b>オントロジーの<b>背骨（刺激-反応-意味とその連想）は理論に忠実</b>。不忠実なのは、そこに<b>「中核評価の層（発明）」と「エピソード記憶の層（別理論の輸入）」を接ぎ木している</b>点。前者は外せる余地があり、後者は研究の狙い（想起・回復を扱う）ゆえの意図的融合として明示すべき。</div>
+</section>
+
+<footer>
+<b>シリーズ</b>（旧モデル計測は archive/ に退避）：
+<a href="archive/20260712_experiment1_plan.html">計画編</a> ／
+<a href="archive/20260712_experiment1_results.html">結果編</a> ／
+<a href="archive/20260712_experiment1_guide.html">読み方ガイド</a> ／
+<a href="archive/20260712_theory_fidelity.html">理論忠実化の検証（双方向）</a> ／
+本ページ＝理論忠実性の棚卸し ／ <a href="20260713_ontology_redesign.html">忠実版オントロジー設計</a><br><br>
+<b>参照した理論</b>：Foa &amp; Kozak (1986) Emotional processing of fear ／ Lang 生体情報理論 ／
+Collins &amp; Loftus (1975) 拡散活性理論。<b>注意</b>：一次PDFは機械抽出できず、確定引用は解説・二次資料経由。
+確定稿の前に原典本文で最終確認すべき（特にC中核・意味の扱い）。<br>
+<b>実装の対応</b>：伝搬 <code>actr_foa_kozak_v2/retrieval/spreading.py</code> ／
+数値 <code>actr_foa_kozak_v2/config.py</code> ／ 比較条件 <code>evaluation_v3/runner.py</code>
+</footer>
+
+</div>
+</body>
+</html>
