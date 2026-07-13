@@ -36,6 +36,7 @@ class SpreadingActivation:
         danger_bias: float = config.DANGER_BIAS,
         danger_decay: float = config.DANGER_PULL_DECAY,
         threat_cores: List[str] | None = None,
+        backward: float = config.BACKWARD_FLOW,
     ):
         self.embedder = embedder
         self.hops = hops
@@ -46,6 +47,10 @@ class SpreadingActivation:
         self.danger_bias = danger_bias
         self.danger_decay = danger_decay
         self.threat_cores = threat_cores or config.THREAT_CORES
+        # 結合は連想（無向）とみなし、逆向きにも backward 倍で伝搬させる（0=一方向）。
+        # Foa & Kozak: 構造の一部の活性化は全体に波及する。危険ハブから
+        # トラウマ記憶側へ「戻る」流れ（侵入想起）はこれが担う。
+        self.backward = backward
 
     def _danger_pull(self, graph: FearGraph, adj: Dict[str, List[tuple]]) -> Dict[str, float]:
         """各ノードの「脅威中核への近さ」pull ∈ (0,1] を返す（threat bias 用）。
@@ -76,10 +81,13 @@ class SpreadingActivation:
 
         戻り値: (activation: key->活性値, reached_hop: key->到達ホップ, seeds: [(FearNode, 類似度)])
         """
-        # 出力方向の隣接リスト: src -> [(dst, rel, weight), ...]
+        # 隣接リスト: src -> [(dst, rel, weight), ...]
+        # backward > 0 のときは逆向きの連想も張る（重みは backward 倍）。
         adj: Dict[str, List[tuple]] = {}
         for e in graph.edges:
             adj.setdefault(e.src, []).append((e.dst, e.rel, e.weight))
+            if self.backward > 0:
+                adj.setdefault(e.dst, []).append((e.src, e.rel, e.weight * self.backward))
 
         # 脅威方向バイアス：各ノードの「危険中核への近さ」を先に測っておく
         pull = self._danger_pull(graph, adj)
@@ -102,15 +110,22 @@ class SpreadingActivation:
             reached_hop.setdefault(s.key, 0)
 
         # ② 拡散：ホップごとに活性を流す
+        # 双方向時の往復（A→B→A の即時ピンポン）は、直前ホップで自分に
+        # 流し込んできた相手へは返さない、というルールで抑える。
         frontier = dict(activation)
+        prev_contrib: Dict[str, set] = {}
         for hop in range(1, self.hops + 1):
             nxt: Dict[str, float] = {}
+            contrib: Dict[str, set] = {}
             for src_key, a in frontier.items():
                 outs = adj.get(src_key)
                 if not outs:
                     continue
                 total_w = sum(w for _, _, w in outs) or 1.0
+                back_to = prev_contrib.get(src_key, ())
                 for dst_key, rel, w in outs:
+                    if dst_key in back_to:                   # 即時の逆流は返さない
+                        continue
                     share = w / total_w                      # fan effect（出力で分割）
                     # 脅威方向バイアス：危険中核に近い到達先ほど活性が乗りやすい
                     threat = 1.0 + self.danger_bias * pull.get(dst_key, 0.0)
@@ -118,10 +133,12 @@ class SpreadingActivation:
                     if flow <= 1e-6:
                         continue
                     nxt[dst_key] = nxt.get(dst_key, 0.0) + flow
+                    contrib.setdefault(dst_key, set()).add(src_key)
             for k, v in nxt.items():
                 activation[k] = activation.get(k, 0.0) + v
                 reached_hop.setdefault(k, hop)
             frontier = nxt
+            prev_contrib = contrib
             if not frontier:
                 break
 
