@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>忠実版オントロジー設計 — 何を残し、何を外し、何を別理論に接地するか</title>
+<style>
+:root{
+  --ink:#26323B; --muted:#5C6E79; --paper:#FAFBFA; --card:#FFFFFF;
+  --line:#E2E7E5; --accent:#0E7490; --accent-soft:#EAF4F6;
+  --stim:#f58231; --resp:#4363d8; --mean:#e6194B; --core:#911eb4; --epi:#2E8B3D;
+  --stim-t:#FDEFE3; --resp-t:#E9EDFB; --mean-t:#FCE8ED; --core-t:#F3E8F9; --epi-t:#E8F6EA;
+  --keep:#2E7D46; --keep-t:#E7F3EB; --drop:#B4325A; --drop-t:#FBEAEF; --move:#B26A00; --move-t:#FBEEDD;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:15.5px; line-height:1.95; -webkit-font-smoothing:antialiased}
+.wrap{max-width:820px; margin:0 auto; padding:56px 24px 96px}
+.eyebrow{color:var(--accent); font-size:12.5px; font-weight:600; letter-spacing:.14em; margin:0 0 10px}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:27px; line-height:1.5; font-weight:600; margin:0 0 10px; text-wrap:balance}
+.lede{color:var(--muted); margin:0; max-width:44em}
+section{margin-top:60px}
+.sechead{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+.num{flex:none; width:30px; height:30px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; transform:translateY(4px)}
+h2{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:21px; font-weight:600; margin:0; line-height:1.6; text-wrap:balance}
+h3{font-size:16px; font-weight:700; margin:28px 0 6px}
+p{margin:12px 0; max-width:44em}
+.note{background:var(--accent-soft); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.note b{color:var(--accent)}
+.warn{background:#FBEEF1; border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.warn b{color:var(--drop)}
+figure{margin:24px 0; padding:0}
+.diagram{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 14px 10px; overflow-x:auto}
+figcaption{font-size:13px; color:var(--muted); margin-top:8px; line-height:1.7}
+svg text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif}
+.tablebox{border:1px solid var(--line); border-radius:12px; overflow-x:auto; margin:22px 0; background:var(--card)}
+table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:600px}
+th{text-align:left; font-size:12px; color:var(--muted); font-weight:600; padding:12px 14px 8px; border-bottom:1px solid var(--line); white-space:nowrap}
+td{padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.7}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600; white-space:nowrap}
+.tag{display:inline-block; font-size:11.5px; font-weight:700; border-radius:6px; padding:2px 8px; white-space:nowrap}
+.t-keep{background:var(--keep-t); color:var(--keep)}
+.t-drop{background:var(--drop-t); color:var(--drop)}
+.t-move{background:var(--move-t); color:var(--move)}
+code{background:var(--accent-soft); border-radius:5px; padding:1px 7px; font-size:13px}
+a{color:var(--accent)}
+footer{margin-top:72px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+.legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12.5px; color:var(--muted); margin:2px 4px 10px}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.sw{width:11px; height:11px; border-radius:3px; display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">実験1・忠実版オントロジー設計 — 2026年7月13日</p>
+<h1>何を残し、何を外し、<br>何を別の理論に接地するか</h1>
+<p class="lede">監査（<a href="20260713_theory_audit.html">理論忠実性の棚卸し</a>）の結論を、実際の作り替え設計に落とした仕様書です。方針は3つ：<b>①発明した「中核評価の層」を外す ②怖がり度を反応要素から読む ③エピソード記憶は捨てず、別レイヤとして別理論に接地する（二層構造）</b>。<br><br><b>初めての方は、まず <a href="00_overview.html">はじめに読む（全体像）</a> からどうぞ。</b></p>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">1</div><h2>設計の核：ひとつの地図を、二層に分ける</h2></div>
+<p>これまでは「恐怖構造」と「エピソード記憶」を1枚の地図にべったり混ぜていました。忠実版では、それぞれ別の理論に責任を持たせた<b>二層</b>にし、細い橋でつなぎます。</p>
+
+<figure>
+<div class="diagram">
+<svg width="720" height="300" viewBox="0 0 720 300" role="img" aria-label="上段が恐怖構造レイヤ（刺激・反応・意味）、下段がエピソード記憶レイヤ。両者が想起と束ねの橋でつながる二層構造の図">
+  <!-- Layer 1 box -->
+  <rect x="20" y="30" width="680" height="120" rx="14" fill="#FBFCFB" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="38" y="52" font-size="12.5" font-weight="700" fill="var(--accent)">恐怖構造レイヤ ── Foa &amp; Kozak / Lang（純粋な刺激-反応-意味）</text>
+  <!-- nodes L1 -->
+  <g font-size="12">
+    <rect x="70" y="78" width="130" height="46" rx="10" fill="var(--stim-t)" stroke="var(--stim)" stroke-width="1.5"/>
+    <text x="135" y="98" text-anchor="middle" fill="var(--stim)" font-size="10.5" font-weight="700">刺激</text>
+    <text x="135" y="115" text-anchor="middle" font-weight="600">見知らぬ男性</text>
+    <rect x="295" y="78" width="130" height="46" rx="10" fill="var(--resp-t)" stroke="var(--resp)" stroke-width="1.5"/>
+    <text x="360" y="98" text-anchor="middle" fill="var(--resp)" font-size="10.5" font-weight="700">反応（＝感情の中心）</text>
+    <text x="360" y="115" text-anchor="middle" font-weight="600">動悸・過覚醒</text>
+    <rect x="520" y="78" width="130" height="46" rx="10" fill="var(--mean-t)" stroke="var(--mean)" stroke-width="1.5"/>
+    <text x="585" y="98" text-anchor="middle" fill="var(--mean)" font-size="10.5" font-weight="700">意味（開語彙）</text>
+    <text x="585" y="115" text-anchor="middle" font-weight="600">「見られている」</text>
+  </g>
+  <g stroke="#9AA7AE" stroke-width="1.5"><line x1="200" y1="101" x2="293" y2="101"/><line x1="425" y1="101" x2="518" y2="101"/></g>
+  <g font-size="9.5" fill="#5C6E79" text-anchor="middle"><text x="246" y="94">EVOKES</text><text x="471" y="94">MEANS</text></g>
+
+  <!-- Layer 2 box -->
+  <rect x="20" y="190" width="680" height="90" rx="14" fill="#FBFCFB" stroke="var(--epi)" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="38" y="212" font-size="12.5" font-weight="700" fill="var(--epi)">エピソード記憶レイヤ ── 二重表象理論（Brewin / Ehlers-Clark）</text>
+  <g font-size="12">
+    <rect x="295" y="230" width="180" height="40" rx="10" fill="var(--epi-t)" stroke="var(--epi)" stroke-width="1.5"/>
+    <text x="385" y="255" text-anchor="middle" font-weight="600">あの日の出来事（記憶）</text>
+  </g>
+  <!-- bridges -->
+  <g stroke="var(--drop)" stroke-width="1.8" fill="none" stroke-dasharray="4 3">
+    <line x1="135" y1="124" x2="330" y2="228"/>
+    <line x1="385" y1="124" x2="385" y2="228"/>
+    <line x1="585" y1="124" x2="440" y2="228"/>
+  </g>
+  <text x="200" y="180" font-size="10.5" fill="var(--drop)" font-weight="700">RECALLS（想起）</text>
+  <text x="500" y="180" font-size="10.5" fill="var(--drop)" font-weight="700">BINDS（束ね＝記憶はS-R-Mの束）</text>
+</svg>
+</div>
+<figcaption>二層構造。上＝純粋な Foa 恐怖構造、下＝エピソード記憶（別理論）。橋（想起・束ね）だけが両層をつなぐ。こうすると「どの部分がどの理論か」を論文で正確に対応づけられる。</figcaption>
+</figure>
+
+<div class="note"><b>なぜ融合を捨てないか：</b>研究の目的（記憶の想起・更新、PTSD回復）には、侵入<b>記憶</b>やフラッシュバック、回復を担う「今は安全」の新しい<b>記憶</b>が要る。純粋な恐怖構造（命題だけ）ではこれらを扱えない。だから捨てずに、<b>別レイヤとして正直に接ぐ</b>。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">2</div><h2>ノードの種類：before → after</h2></div>
+<div class="legend">
+  <span><span class="sw" style="background:var(--keep)"></span>残す</span>
+  <span><span class="sw" style="background:var(--drop)"></span>外す</span>
+  <span><span class="sw" style="background:var(--move)"></span>役割変更 / 別レイヤ化</span>
+</div>
+<div class="tablebox"><table>
+  <tr><th>ノード</th><th>扱い</th><th>変更内容</th></tr>
+  <tr><td>FkStimulus（刺激）</td><td><span class="tag t-keep">残す</span></td><td>変更なし</td></tr>
+  <tr><td>FkResponse（反応）</td><td><span class="tag t-move">役割変更</span></td><td>そのまま残すが、<b>怖がり度の読み出し口</b>に昇格（感情の中心）</td></tr>
+  <tr><td>FkMeaning（意味）</td><td><span class="tag t-move">役割変更</span></td><td>残す。「危険」等の評価も<b>ここに開語彙として統合</b>（別階層にしない）</td></tr>
+  <tr><td>FkCore（中核4種）</td><td><span class="tag t-drop">外す</span></td><td>閉集合の中核評価ノードを<b>廃止</b>。評価は FkMeaning へ吸収</td></tr>
+  <tr><td>FkEpisode（記憶）</td><td><span class="tag t-move">別レイヤ化</span></td><td>残すが、恐怖構造とは<b>別レイヤ</b>として二重表象理論に接地</td></tr>
+</table></div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">3</div><h2>エッジの種類：before → after</h2></div>
+<div class="tablebox"><table>
+  <tr><th>エッジ</th><th>扱い</th><th>変更内容</th></tr>
+  <tr><td>EVOKES（刺激→反応）</td><td><span class="tag t-keep">残す</span></td><td>向きは持たせない（無向・対称）</td></tr>
+  <tr><td>MEANS（刺激/反応→意味）</td><td><span class="tag t-keep">残す</span></td><td>同上</td></tr>
+  <tr><td>CO_OCCURS（刺激↔刺激）</td><td><span class="tag t-keep">残す</span></td><td>同上</td></tr>
+  <tr><td>SIMILAR（似た刺激↔刺激）</td><td><span class="tag t-keep">残す</span></td><td>刺激般化として維持（cos基盤の限界は注記）</td></tr>
+  <tr><td>ROLLS_UP（意味→中核）</td><td><span class="tag t-drop">外す</span></td><td>中核層を廃止するので<b>不要</b></td></tr>
+  <tr><td>RECALLS（刺激→記憶）</td><td><span class="tag t-move">橋に</span></td><td>恐怖構造→記憶レイヤをつなぐ<b>層間の橋</b>として再定義</td></tr>
+  <tr><td>BINDS（記憶↔意味/反応）</td><td><span class="tag t-move">橋に</span></td><td>近似合成をやめ、<b>抽出時に直接張る</b>（記憶＝束ねられたS-R-M）</td></tr>
+  <tr><td>LEADS_TO（負→負記憶）</td><td><span class="tag t-drop">外す</span></td><td>「嫌な記憶は嫌な記憶へ」は発明。理論に対応物なく<b>撤去</b></td></tr>
+</table></div>
+<p style="font-size:13.5px;color:var(--muted)">伝わり方（重み・向き）は前回の決定どおり：<b>全エッジ 1.0・無向対称・外付けの危険引き寄せなし・fan効果と減衰は維持</b>（詳細は監査の第2〜5節）。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">4</div><h2>怖がり度を「反応要素」から読む</h2></div>
+<p>これが指標の忠実化です。生体情報理論では、恐怖という感情の担い手は<b>反応要素（動悸・過覚醒・身構えなど身体反応）</b>。だから怖がり度の読み出し口を、発明した「危険コア」から<b>反応ノードの活性</b>へ移します。</p>
+
+<figure>
+<div class="diagram">
+<svg width="700" height="150" viewBox="0 0 700 150" role="img" aria-label="旧指標は危険コアの活性を読んでいたが、新指標は反応ノードの活性を読む、という読み出し口の変更図">
+  <text x="175" y="26" font-size="13" font-weight="700" text-anchor="middle" fill="#5C6E79">旧：発明したコアから読む</text>
+  <g font-size="11.5">
+    <rect x="60" y="58" width="110" height="40" rx="9" fill="var(--mean-t)" stroke="var(--mean)" stroke-width="1.3"/>
+    <text x="115" y="82" text-anchor="middle" font-weight="600">意味</text>
+    <rect x="220" y="58" width="110" height="40" rx="9" fill="var(--core-t)" stroke="var(--core)" stroke-width="1.6"/>
+    <text x="275" y="82" text-anchor="middle" font-weight="600">危険コア</text>
+  </g>
+  <line x1="170" y1="78" x2="216" y2="78" stroke="#9AA7AE" stroke-width="1.4"/>
+  <text x="275" y="118" font-size="11" text-anchor="middle" fill="var(--drop)" font-weight="700">📏 ここを読んでいた</text>
+
+  <line x1="360" y1="20" x2="360" y2="135" stroke="#E2E7E5" stroke-width="1"/>
+
+  <text x="530" y="26" font-size="13" font-weight="700" text-anchor="middle" fill="var(--accent)">新：反応要素から読む（忠実）</text>
+  <g font-size="11.5">
+    <rect x="410" y="58" width="110" height="40" rx="9" fill="var(--stim-t)" stroke="var(--stim)" stroke-width="1.3"/>
+    <text x="465" y="82" text-anchor="middle" font-weight="600">刺激</text>
+    <rect x="570" y="58" width="110" height="40" rx="9" fill="var(--resp-t)" stroke="var(--resp)" stroke-width="1.6"/>
+    <text x="625" y="82" text-anchor="middle" font-weight="600">反応</text>
+  </g>
+  <line x1="520" y1="78" x2="566" y2="78" stroke="#9AA7AE" stroke-width="1.4"/>
+  <text x="625" y="118" font-size="11" text-anchor="middle" fill="var(--keep)" font-weight="700">📏 ここを読む</text>
+</svg>
+</div>
+<figcaption>読み出し口の移動。恐怖＝身体の反応、という理論に合わせる。般化カーブも新指標（反応の活性）で100キューを測り直す。</figcaption>
+</figure>
+
+<p><b>補助指標として意味も見る：</b>「見られている」等の脅威的な意味（開語彙）の活性は、恐怖の<b>解釈的な</b>側面として別に記録する。つまり「反応＝恐怖の強さ／意味＝恐怖の内容」と役割を分けて読む。侵入記憶（記憶レイヤの活性）はさらに別指標。前に<a href="20260713_theory_audit.html">監査</a>で整理した「測っている量↔症状」の対応が、これでより理論に沿う。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">5</div><h2>作り替えの段取りと、残る限界</h2></div>
+<h3>実装ステップ</h3>
+<div class="tablebox"><table>
+  <tr><th>手順</th><th>内容</th><th>作り直し</th></tr>
+  <tr><td>① 抽出プロンプト改修</td><td>core/ROLLS_UP を出さない。意味は開語彙。記憶の束ね(BINDS)を直接抽出。LEADS_TO 廃止</td><td>要</td></tr>
+  <tr><td>② グラフ作り直し</td><td>改修した抽出で恐怖構造＋記憶レイヤを再構築</td><td>要（LLM再抽出）</td></tr>
+  <tr><td>③ 伝搬を忠実版に</td><td>無向対称・重み1.0・危険引き寄せOFF（前回決定）</td><td>不要</td></tr>
+  <tr><td>④ 怖がり度＝反応活性に変更</td><td>読み出し口の変更。字幕・可視化も追随</td><td>不要</td></tr>
+  <tr><td>⑤ 100キューで再測定</td><td>新指標で般化カーブ。旧モデル(archive)と比較</td><td>不要</td></tr>
+</table></div>
+
+<h3>論文に明記する限界（正直さの担保）</h3>
+<div class="warn">
+① <b>方向の非対称・連想強度の差はモデル化しない</b>（エッジ一律1.0・無向）。<br>
+② <b>刺激般化は意味的近さ(cos)で近似</b>しており、条件づけ般化とは厳密には異なる。<br>
+③ <b>恐怖構造とエピソード記憶は別理論の意図的融合</b>であり、単一理論の実装ではない。<br>
+④ <b>「怖がり度＝反応活性」は指標の仮説</b>であり、臨床的妥当性は井野先生の監修対象。
+</div>
+<div class="note"><b>次の一手：</b>この設計でよければ、①の抽出プロンプト改修から着手する。まず現行の抽出スキーマ（core を出す構造）を、開語彙の意味＋束ね直接抽出に書き換え、小さく1チャンクで試してから全体を作り直す。</div>
+</section>
+
+<footer>
+<b>シリーズ</b>：<a href="20260713_theory_audit.html">理論忠実性の棚卸し（監査）</a> ／ 本ページ＝忠実版オントロジー設計 ／
+<a href="20260713_faithful_results.html">忠実版の初回測定（結果）</a> ／ 旧モデル計測は <code>docs/archive/</code> に退避<br><br>
+<b>実装の対応</b>：抽出 <code>actr_foa_kozak_v2/memory/extractor.py</code> ／
+構築 <code>actr_foa_kozak_v2/memory/builder.py</code> ／ 伝搬 <code>actr_foa_kozak_v2/retrieval/spreading.py</code> ／
+設定 <code>actr_foa_kozak_v2/config.py</code> ／ 測定 <code>evaluation_v3/runner.py</code>
+</footer>
+
+</div>
+</body>
+</html>

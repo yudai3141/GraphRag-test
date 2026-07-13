@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>感度チェック — 「ふつうの日常」を足すと、どれだけ変わるか</title>
+<style>
+:root{
+  --ink:#26323B; --muted:#5C6E79; --paper:#FAFBFA; --card:#FFFFFF;
+  --line:#E2E7E5; --accent:#0E7490; --accent-soft:#EAF4F6;
+  --base:#98A4AC; --daily:#0C8CA8; --pos:#2E8B3D; --l1:#B4325A;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:15.5px; line-height:1.95; -webkit-font-smoothing:antialiased}
+.wrap{max-width:780px; margin:0 auto; padding:56px 24px 96px}
+.eyebrow{color:var(--accent); font-size:12.5px; font-weight:600; letter-spacing:.14em; margin:0 0 10px}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:27px; line-height:1.5; font-weight:600; margin:0 0 12px; text-wrap:balance}
+.lede{color:var(--muted); margin:0; max-width:44em}
+section{margin-top:58px}
+.sechead{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+.num{flex:none; width:30px; height:30px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; transform:translateY(4px)}
+h2{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:21px; font-weight:600; margin:0; line-height:1.6; text-wrap:balance}
+p{margin:12px 0; max-width:44em}
+.key{background:var(--accent-soft); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.key b{color:var(--accent)}
+.note{background:#FBF3E7; border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.note b{color:#B26A00}
+figure{margin:24px 0; padding:0}
+.diagram{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 14px 10px; overflow-x:auto}
+figcaption{font-size:13px; color:var(--muted); margin-top:8px; line-height:1.7}
+svg text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif}
+.legend{display:flex; gap:18px; flex-wrap:wrap; font-size:13px; color:var(--muted); margin:2px 4px 10px}
+.legend span{display:inline-flex; align-items:center; gap:7px}
+.sw{width:12px; height:12px; border-radius:3px; display:inline-block}
+.stats{display:flex; gap:12px; flex-wrap:wrap; margin:22px 0}
+.stat{flex:1 1 150px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px}
+.stat .v{font-size:23px; font-weight:700; font-variant-numeric:tabular-nums}
+.stat .v .arrow{color:var(--muted); font-size:16px; font-weight:400; margin:0 4px}
+.stat .l{font-size:12.5px; color:var(--muted); margin-top:2px}
+.tablebox{border:1px solid var(--line); border-radius:12px; overflow-x:auto; margin:22px 0; background:var(--card)}
+table{border-collapse:collapse; width:100%; font-size:14px; min-width:460px}
+th{text-align:left; font-size:12.5px; color:var(--muted); font-weight:600; padding:12px 15px 8px; border-bottom:1px solid var(--line)}
+td{padding:11px 15px; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.7; font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600}
+code{background:var(--accent-soft); border-radius:5px; padding:1px 7px; font-size:13px}
+a{color:var(--accent)}
+footer{margin-top:72px; padding-top:22px; border-top:1px solid var(--line); font-size:13.5px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">実験1・感度チェック — 2026年7月13日</p>
+<h1>「ふつうの日常」を足すと、<br>どれだけ変わるか</h1>
+<p class="lede">前の測定で、地図の元データがトラウマ体験の手記だけ＝ほぼ恐怖一色だったせいで、怖がりの「階段」が緩くなっていることがわかりました。そこで<b>本人のふつうの日常（買い物・散歩・料理・安心した場面など）をざっと足して</b>作り直し、挙動がどれだけ動くかを見ました。<b>正しい版を作るのが目的ではなく、影響の大きさを測る簡易チェックです（追加テキストは雑）。</b>初めての方は <a href="00_overview.html">はじめに読む</a> を先にどうぞ。</p>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">1</div><h2>やったこと：受け皿を足した</h2></div>
+<p>これまでの地図は、記憶の75%がつらい記憶で、安心・前向きな「受け皿」がほとんどありませんでした。そこに、ありふれた日常と小さな良い出来事をざっくり書き足して作り直しました。結果、記憶のバランスがこう変わりました：</p>
+<div class="stats">
+  <div class="stat"><div class="v" style="color:var(--pos)">17%<span class="arrow">→</span>35%</div><div class="l">前向きな記憶の割合</div></div>
+  <div class="stat"><div class="v">60<span class="arrow">→</span>74</div><div class="l">記憶の総数</div></div>
+  <div class="stat"><div class="v">396<span class="arrow">→</span>577</div><div class="l">地図の点の総数</div></div>
+</div>
+<p>この「＋日常」版と、元の「トラウマ一色」版を、<b>まったく同じ100個のひとこと</b>で比べます。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">2</div><h2>いちばん動いた：中立な言葉で暴発しなくなった</h2></div>
+<p>「破局モードに切り替わった割合（引き金率）」を、レベル別に比べます。トラウマに近いL1で高く、中立のL4で低いのが理想（急な階段）。</p>
+
+<figure>
+<div class="diagram">
+<div class="legend">
+  <span><span class="sw" style="background:var(--base)"></span>トラウマ一色（前）</span>
+  <span><span class="sw" style="background:var(--daily)"></span>＋日常（後）</span>
+</div>
+<svg width="640" height="248" viewBox="0 0 640 248" role="img" aria-label="引き金率の比較。L4中立が50%から20%へ、L1とL4の差が40ポイントから60ポイントへ広がった">
+  <g stroke="#EDF0EE" stroke-width="1">
+    <line x1="60" y1="40" x2="600" y2="40"/><line x1="60" y1="125" x2="600" y2="125"/><line x1="60" y1="210" x2="600" y2="210"/>
+  </g>
+  <line x1="60" y1="210" x2="600" y2="210" stroke="#C6CFD3" stroke-width="1.4"/>
+  <g font-size="11" fill="#5C6E79" text-anchor="end">
+    <text x="52" y="214">0%</text><text x="52" y="129">50%</text><text x="52" y="44">100%</text>
+  </g>
+  <!-- groups: cx 110,210,310,410,510 ; base bar x=cx-28 w24, daily x=cx+2 w24 -->
+  <!-- values base:90,90,90,50,75 daily:80,75,65,20,50  y=210-pct*1.7 -->
+  <g>
+    <rect x="82" y="57" width="24" height="153" rx="3" fill="var(--base)"><title>L1 前: 90%</title></rect>
+    <rect x="112" y="74" width="24" height="136" rx="3" fill="var(--daily)"><title>L1 後: 80%</title></rect>
+    <rect x="182" y="57" width="24" height="153" rx="3" fill="var(--base)"><title>L2 前: 90%</title></rect>
+    <rect x="212" y="83" width="24" height="127" rx="3" fill="var(--daily)"><title>L2 後: 75%</title></rect>
+    <rect x="282" y="57" width="24" height="153" rx="3" fill="var(--base)"><title>L3 前: 90%</title></rect>
+    <rect x="312" y="100" width="24" height="110" rx="3" fill="var(--daily)"><title>L3 後: 65%</title></rect>
+    <rect x="382" y="125" width="24" height="85" rx="3" fill="var(--base)"><title>L4 前: 50%</title></rect>
+    <rect x="412" y="176" width="24" height="34" rx="3" fill="var(--daily)"><title>L4 後: 20%</title></rect>
+    <rect x="482" y="82" width="24" height="128" rx="3" fill="var(--base)"><title>L5 前: 75%</title></rect>
+    <rect x="512" y="125" width="24" height="85" rx="3" fill="var(--daily)"><title>L5 後: 50%</title></rect>
+  </g>
+  <!-- value labels for daily -->
+  <g font-size="11" font-weight="700" fill="var(--daily)" text-anchor="middle">
+    <text x="124" y="68">80</text><text x="224" y="77">75</text><text x="324" y="94">65</text>
+    <text x="424" y="170">20</text><text x="524" y="119">50</text>
+  </g>
+  <g font-size="11" fill="#98A4AC" text-anchor="middle">
+    <text x="94" y="51">90</text><text x="194" y="51">90</text><text x="294" y="51">90</text>
+    <text x="394" y="119">50</text><text x="494" y="76">75</text>
+  </g>
+  <g font-size="11.5" fill="#5C6E79" text-anchor="middle">
+    <text x="109" y="228">L1 中核</text><text x="209" y="228">L2 関連</text><text x="309" y="228">L3 あいまい</text>
+    <text x="409" y="228">L4 中立</text><text x="509" y="228">L5 前向き</text>
+  </g>
+  <text x="409" y="244" font-size="11" fill="var(--l1)" text-anchor="middle" font-weight="700">中立での暴発が半分以下に</text>
+</svg>
+</div>
+<figcaption><b>縦軸</b>＝引き金率（そのレベルの20個のうち破局モードに入った割合）／<b>横軸</b>＝ひとことのレベル。中立（L4）が 50%→20% に激減。トラウマ側（L1〜L3）はあまり下げずに中立だけ下がったので、<b>階段が急になった</b>（L1とL4の差：40ポイント→60ポイント）。</figcaption>
+</figure>
+
+<div class="key"><b>意味：</b>前向き・中立な記憶という「受け皿」ができたことで、中立なひとことがそこに落ち着き、恐怖へ飛ばなくなった。<b>雑に足しただけでこれだけ動いた</b>ので、元データの偏りが階段を潰していたことは確実です。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">3</div><h2>記憶のよみがえりも、階段が急になった</h2></div>
+<p>「嫌な記憶がよみがえる強さ（侵入記憶）」の、トラウマ中核(L1)と中立(L4)の比を見ると、階段がさらに急になりました。</p>
+<div class="tablebox"><table>
+  <tr><th>指標（同じ100キュー）</th><th>トラウマ一色</th><th>＋日常</th></tr>
+  <tr><td>侵入記憶の勾配（L1 ÷ L4）</td><td>1.74倍</td><td><b style="color:var(--daily)">2.59倍</b></td></tr>
+  <tr><td>引き金率の段差（L1 − L4）</td><td>40ポイント</td><td><b style="color:var(--daily)">60ポイント</b></td></tr>
+  <tr><td>前向き入力(L5)での引き金率</td><td>75%</td><td><b style="color:var(--daily)">50%</b></td></tr>
+</table></div>
+<p>いずれも「トラウマ関連には強く、それ以外には弱く」の方向へ改善。<b>ちゃんとバランスを取ったコーパスなら、PTSDらしい急な階段が出る</b>という見通しが立ちました。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">4</div><h2>副次的な発見：指標によって感度が違う</h2></div>
+<p>面白いことに、「怖がり度＝体の反応の活性」という主指標だけは、ほとんど動きませんでした（L1÷L4 が 1.36倍→1.25倍）。一方で「引き金率」は大きく動いた。この差は理由がはっきりしています：</p>
+<div class="note"><b>なぜ差が出るか：</b>「体の反応の活性」は、反応が<b>良い文脈か悪い文脈かを区別せず</b>に合計します。日常を足しても体の反応ノード自体は増えないので動きにくい。一方「引き金率」は、想起された記憶が<b>つらい記憶か良い記憶か（valence）を見て</b>判定するので、良い記憶が増えた効果を捉えます。<br><br>→ 示唆：怖がり度の指標にも<b>脅威方向や記憶の良し悪しを織り込む</b>か、<b>安心系の反応ノード</b>を増やすべき。これは本番のコーパス整備で詰める設計論点として記録します。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">5</div><h2>まとめ</h2></div>
+<p>この簡易チェックでわかったこと：</p>
+<div class="tablebox"><table>
+  <tr><th>問い</th><th>答え</th></tr>
+  <tr><td>階段が緩いのはデータ偏りのせいか？</td><td>✅ ほぼ確定。雑な追加でも特異性・勾配が明確に改善</td></tr>
+  <tr><td>どれだけ変わるか？</td><td>中立の暴発 50%→20%、侵入記憶の勾配 1.74→2.59倍</td></tr>
+  <tr><td>本番でコーパス整備する価値は？</td><td>✅ 大きい。バランスの取れた素材でPTSDらしい勾配が期待できる</td></tr>
+  <tr><td>指標は今のままでよいか？</td><td>△ 「反応活性」は valence を見ないので鈍い。指標設計の見直し余地</td></tr>
+</table></div>
+<p style="font-size:13.5px;color:var(--muted)">※ この「＋日常」版はあくまで感度チェック用の雑な素材で、<b>正式版ではありません</b>。データは <code>graph_faithful.json</code>（トラウマ一色）と <code>graph_plus_daily.json</code>（＋日常）の両方を保存済みで、いつでも破棄できます。</p>
+</section>
+
+<footer>
+<b>シリーズ</b>：<a href="00_overview.html">はじめに読む</a> ／
+<a href="20260713_theory_audit.html">理論の棚卸し</a> ／
+<a href="20260713_ontology_redesign.html">忠実版オントロジー設計</a> ／
+<a href="20260713_faithful_results.html">忠実版の初回測定</a> ／ 本ページ＝感度チェック<br><br>
+<b>データ</b>：<code>graph_faithful.json</code> / <code>graph_plus_daily.json</code> ／
+測定 <code>results/metrics.csv</code>（＋日常）・<code>metrics_traumaonly.csv</code>（一色）<br>
+<b>用語</b>：引き金率＝破局モードに入った割合 ／ 侵入記憶＝嫌な記憶のよみがえりの強さ ／
+valence＝記憶の良し悪し（前向き/中立/つらい）
+</footer>
+
+</div>
+</body>
+</html>

@@ -13,3 +13,13 @@ activation.html
 
 # 作業用スクラッチ（要件メモ等・git 管理外）
 tmp/
+
+# evaluation_v3: グラフのスナップショット（埋め込み入りで大きい）と測定結果は再生成可能
+evaluation_v3/data/graph_*.json
+evaluation_v3/results/
+
+# evaluation_v3: 退避した旧ドキュメント・進捗報告用の生成物・ラフな感度チェック素材は管理外
+evaluation_v3/docs/archive/
+evaluation_v3/progress_report.pptx
+evaluation_v3/graph_view.html
+evaluation_v3/data/story_plus_daily.txt
