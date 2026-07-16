@@ -14,12 +14,20 @@ activation.html
 # 作業用スクラッチ（要件メモ等・git 管理外）
 tmp/
 
-# evaluation_v3: グラフのスナップショット（埋め込み入りで大きい）と測定結果は再生成可能
-evaluation_v3/data/graph_*.json
-evaluation_v3/results/
+# caps5_graph_structure_eval_v3: 大きいグラフのスナップショット（埋め込み入り・APIで再生成可）と一時ファイル
+caps5_graph_structure_eval_v3/data/graph_*.json
+caps5_graph_structure_eval_v3/data/_*.txt
 
-# evaluation_v3: 退避した旧ドキュメント・進捗報告用の生成物・ラフな感度チェック素材は管理外
-evaluation_v3/docs/archive/
-evaluation_v3/progress_report.pptx
-evaluation_v3/graph_view.html
-evaluation_v3/data/story_plus_daily.txt
+# caps5_graph_structure_eval_v3: レンダリング済みの重い生成物（.md と図から再生成可）
+caps5_graph_structure_eval_v3/paper/*.html
+caps5_graph_structure_eval_v3/paper/*.pdf
+caps5_graph_structure_eval_v3/graph_view.html
+
+# caps5_graph_structure_eval_v3: 退避した旧ドキュメント・進捗報告用の生成物
+caps5_graph_structure_eval_v3/docs/archive/
+caps5_graph_structure_eval_v3/progress_report.pptx
+
+# （metrics_*.csv・summary.json・figures/*.png・paper/*.md は論文の根拠として追跡する）
+
+# 就活対策メモ（別セッション生成・研究リポジトリ管理外）
+docs_for_interview/

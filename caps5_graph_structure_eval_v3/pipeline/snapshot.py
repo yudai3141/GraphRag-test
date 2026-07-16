@@ -4,8 +4,8 @@
 これにより PTSD 版・健常版など複数の「記憶の地図」を並存させて比較できる
 （Neo4j 側は builder が Fk* を消して作り直すため、同時に1つしか持てない）。
 
-実行: uv run python -m evaluation_v3.snapshot [出力パス]
-（既定: evaluation_v3/data/graph_ptsd.json）
+実行: uv run python -m caps5_graph_structure_eval_v3.snapshot [出力パス]
+（既定: caps5_graph_structure_eval_v3/data/graph_ptsd.json）
 """
 
 import json
@@ -16,7 +16,7 @@ from actr_foa_kozak_v2 import config
 from actr_foa_kozak_v2.domain.models import Edge, Episode, FearGraph, FearNode
 from actr_foa_kozak_v2.infrastructure.neo4j_store import Neo4jStore
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
+_HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_PATH = os.path.join(_HERE, "data", "graph_ptsd.json")
 
 

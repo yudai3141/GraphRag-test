@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>実験2の設計 — CAPS-5 の症状を、グラフのどこで測るか</title>
+<style>
+:root{
+  --ink:#26323B; --muted:#5C6E79; --paper:#FAFBFA; --card:#FFFFFF;
+  --line:#E2E7E5; --accent:#0E7490; --accent-soft:#EAF4F6;
+  --stim:#f58231; --resp:#4363d8; --mean:#e6194B; --epi:#2E8B3D; --l1:#B4325A;
+  --stim-t:#FDEFE3; --resp-t:#E9EDFB; --mean-t:#FCE8ED; --epi-t:#E8F6EA; --cap:#7B4FA6; --cap-t:#F3ECF9;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:15.5px; line-height:1.95; -webkit-font-smoothing:antialiased}
+.wrap{max-width:820px; margin:0 auto; padding:56px 24px 96px}
+.eyebrow{color:var(--accent); font-size:12.5px; font-weight:600; letter-spacing:.14em; margin:0 0 10px}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:27px; line-height:1.5; font-weight:600; margin:0 0 10px; text-wrap:balance}
+.lede{color:var(--muted); margin:0; max-width:44em}
+section{margin-top:58px}
+.sechead{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+.num{flex:none; width:30px; height:30px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; transform:translateY(4px)}
+h2{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:21px; font-weight:600; margin:0; line-height:1.6; text-wrap:balance}
+h3{font-size:16px; font-weight:700; margin:28px 0 6px}
+p{margin:12px 0; max-width:44em}
+.key{background:var(--accent-soft); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.key b{color:var(--accent)}
+.note{background:#F3ECF9; border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.note b{color:var(--cap)}
+figure{margin:24px 0; padding:0}
+.diagram{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 14px 10px; overflow-x:auto}
+figcaption{font-size:13px; color:var(--muted); margin-top:8px; line-height:1.7}
+svg text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif}
+.tablebox{border:1px solid var(--line); border-radius:12px; overflow-x:auto; margin:22px 0; background:var(--card)}
+table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:640px}
+th{text-align:left; font-size:12px; color:var(--muted); font-weight:600; padding:12px 14px 8px; border-bottom:1px solid var(--line); white-space:nowrap}
+td{padding:12px 14px; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.7}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600; white-space:nowrap}
+.badge{display:inline-block; font-size:12px; font-weight:700; border-radius:6px; padding:1px 8px; background:var(--cap-t); color:var(--cap)}
+code{background:var(--accent-soft); border-radius:5px; padding:1px 7px; font-size:13px}
+a{color:var(--accent)}
+footer{margin-top:72px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">実験2の設計 — 2026年7月15日</p>
+<h1>CAPS-5 の症状を、<br>グラフの“どこ”で測るか</h1>
+<p class="lede">実験2は、発話を加えて「PTSD 患者らしさ」を CAPS-5（診断用の構造化面接）の B 項目に沿って再現・評価する。その中核は、<b>同じ拡散活性を、刺激・反応・意味・エピソードの“どのノードで読むか”で、B1/B3/B4/B5 が別々に測れる</b>という点にある。初めての方は <a href="00_overview.html">はじめに読む</a> を先にどうぞ。</p>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">1</div><h2>実験1と実験2の役割分担</h2></div>
+<div class="tablebox"><table>
+  <tr><th></th><th>実験1（済）</th><th>実験2（これから）</th></tr>
+  <tr><td>問い</td><td>グラフ自体がPTSDらしい連想を示すか（リアリティ）</td><td>発話を加え、CAPS-5 の症状として再現できるか</td></tr>
+  <tr><td>測るもの</td><td>グラフ内部の活性量（般化勾配・侵入記憶）</td><td>B1/B3/B4/B5 の挙動＋その回復・持続の動態＋患者発話</td></tr>
+  <tr><td>量(N)</td><td>キュー100発話</td><td>シミュレーションで多数のキュー×対話を回して確保</td></tr>
+  <tr><td>質の担保</td><td>—</td><td>井野先生の承認：①対応づけの臨床的妥当性を監査 ②サブサンプルを自ら採点し一致(κ)を検証</td></tr>
+</table></div>
+<p>実験1は「地図の形が妥当」、実験2は「その地図から出る挙動が CAPS-5 の患者像に合う」を示す、という積み上げ。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">2</div><h2>鍵：同じ活性を、読む場所で症状が変わる</h2></div>
+<p>きっかけを入れると拡散活性が広がる。その活性を<b>どの種類のノードで読むか</b>で、対応する CAPS-5 の B 項目が変わる。</p>
+
+<figure>
+<div class="diagram">
+<svg width="760" height="360" viewBox="0 0 760 360" role="img" aria-label="刺激・反応・意味・エピソードの各ノードに、B5生理反応・B4心理的苦痛・B1侵入記憶・B3フラッシュバックの読み出しが対応する図">
+  <defs><marker id="ea" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9AA7AE"/></marker></defs>
+  <!-- input -->
+  <rect x="24" y="150" width="128" height="52" rx="10" fill="#fff" stroke="var(--line)" stroke-width="1.4"/>
+  <text x="88" y="172" text-anchor="middle" font-size="11" fill="#5C6E79">きっかけ（発話）</text>
+  <text x="88" y="190" text-anchor="middle" font-size="12.5" font-weight="700">「物音がした」</text>
+  <line x1="152" y1="176" x2="188" y2="176" stroke="#9AA7AE" stroke-width="1.6" marker-end="url(#ea)"/>
+  <!-- Stimulus -->
+  <rect x="192" y="150" width="120" height="52" rx="10" fill="var(--stim-t)" stroke="var(--stim)" stroke-width="1.6"/>
+  <text x="252" y="171" text-anchor="middle" font-size="10.5" fill="var(--stim)" font-weight="700">刺激</text>
+  <text x="252" y="189" text-anchor="middle" font-size="12.5" font-weight="700">物音</text>
+  <!-- Response -->
+  <rect x="360" y="60" width="140" height="52" rx="10" fill="var(--resp-t)" stroke="var(--resp)" stroke-width="1.6"/>
+  <text x="430" y="81" text-anchor="middle" font-size="10.5" fill="var(--resp)" font-weight="700">反応（生理）</text>
+  <text x="430" y="99" text-anchor="middle" font-size="12.5" font-weight="700">動悸・過覚醒</text>
+  <!-- Meaning -->
+  <rect x="360" y="150" width="140" height="52" rx="10" fill="var(--mean-t)" stroke="var(--mean)" stroke-width="1.6"/>
+  <text x="430" y="171" text-anchor="middle" font-size="10.5" fill="var(--mean)" font-weight="700">意味</text>
+  <text x="430" y="189" text-anchor="middle" font-size="12.5" font-weight="700">「危険が来る」</text>
+  <!-- Episode -->
+  <rect x="360" y="248" width="140" height="52" rx="10" fill="var(--epi-t)" stroke="var(--epi)" stroke-width="1.6"/>
+  <text x="430" y="269" text-anchor="middle" font-size="10.5" fill="var(--epi)" font-weight="700">エピソード</text>
+  <text x="430" y="287" text-anchor="middle" font-size="12.5" font-weight="700">あの日の出来事</text>
+  <!-- edges -->
+  <g stroke="#9AA7AE" stroke-width="1.6" fill="none">
+    <line x1="300" y1="158" x2="358" y2="98" marker-end="url(#ea)"/>
+    <line x1="312" y1="176" x2="358" y2="176" marker-end="url(#ea)"/>
+    <line x1="300" y1="194" x2="358" y2="262" marker-end="url(#ea)"/>
+  </g>
+  <text x="322" y="120" font-size="9" fill="#5C6E79">EVOKES</text>
+  <text x="330" y="168" font-size="9" fill="#5C6E79">MEANS</text>
+  <text x="318" y="240" font-size="9" fill="#5C6E79">RECALLS</text>
+  <!-- readout badges -->
+  <g font-size="12" font-weight="700">
+    <rect x="540" y="66" width="196" height="40" rx="8" fill="var(--cap-t)" stroke="var(--cap)" stroke-width="1.2"/>
+    <text x="552" y="83" fill="var(--cap)">B5 生理反応</text><text x="552" y="99" font-size="10.5" fill="#5C6E79" font-weight="400">反応ノードの活性＝現行の“怖がり度”</text>
+    <rect x="540" y="156" width="196" height="40" rx="8" fill="var(--cap-t)" stroke="var(--cap)" stroke-width="1.2"/>
+    <text x="552" y="173" fill="var(--cap)">B4 心理的苦痛</text><text x="552" y="189" font-size="10.5" fill="#5C6E79" font-weight="400">脅威・負の意味ノードの活性</text>
+    <rect x="540" y="254" width="196" height="40" rx="8" fill="var(--cap-t)" stroke="var(--cap)" stroke-width="1.2"/>
+    <text x="552" y="271" fill="var(--cap)">B1 侵入記憶</text><text x="552" y="287" font-size="10.5" fill="#5C6E79" font-weight="400">負エピソードの活性・発火率</text>
+  </g>
+  <g stroke="var(--cap)" stroke-width="1.3" fill="none" stroke-dasharray="3 2">
+    <line x1="500" y1="86" x2="538" y2="86"/><line x1="500" y1="176" x2="538" y2="176"/><line x1="500" y1="274" x2="538" y2="274"/>
+  </g>
+  <!-- B3 spanning -->
+  <rect x="360" y="320" width="376" height="34" rx="8" fill="var(--cap-t)" stroke="var(--cap)" stroke-width="1.2"/>
+  <text x="372" y="341" font-size="12" font-weight="700" fill="var(--cap)">B3 フラッシュバック</text>
+  <text x="486" y="341" font-size="10.5" fill="#5C6E79">＝感覚表象 S が強く、文脈表象 C が弱い（解離 S/(S+C)）× 持続</text>
+</svg>
+</div>
+<figcaption>1つの拡散活性を、反応＝B5／意味＝B4／エピソード＝B1 として読み分ける。B3 は、エピソードの<b>感覚表象(S-rep)</b>が強く発火するのに<b>文脈表象(C-rep＝“これは過去”のタグ)</b>が弱い＝解離 S/(S+C) で測る（＋持続）。これは忠実版が刺激・反応・意味・エピソードを別ノードで持つからこそできる。</figcaption>
+</figure>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">3</div><h2>B項目ごとのグラフ測定</h2></div>
+<p>1つのキュー(発話)を入れて拡散活性を回すと、各ノードに活性が乗る。それを次の指数にまとめ、レベル L1〜L5 で平均して勾配を見る（＝過般化：薄い入力でも指数が立つか）。記号：<code>R</code>=反応活性、<code>M</code>=脅威・負の意味活性、<code>E</code>=負エピソード活性、<code>S</code>=感覚表象活性、<code>C</code>=文脈表象活性。</p>
+<div class="tablebox"><table>
+  <tr><th>CAPS-5 B</th><th>臨床が問うこと</th><th>定量指数（グラフ上）</th><th>必要機構</th></tr>
+  <tr><td><span class="badge">B5</span> 生理反応</td>
+      <td>身体反応の有無・種類／きっかけ／回復まで</td>
+      <td><b>反応強度 R</b>＝Σ生理反応活性（＝現行の怖がり度）／<b>反応プロファイル</b>＝発火した反応ノードの顔ぶれ（動悸・緊張…）／<b>般化幅</b>＝R の L4÷L1／<b>回復</b>＝Rが平静へ戻る減衰ターン数</td>
+      <td>既存＋残留活性</td></tr>
+  <tr><td><span class="badge">B4</span> 心理的苦痛</td>
+      <td>きっかけでの動揺／どんなきっかけか／鎮静できるか</td>
+      <td><b>苦痛強度 M</b>＝Σ脅威・負の意味活性（＝動揺の“中身”）／<b>般化幅</b>＝M の L4÷L1／<b>回復</b>＝Mの減衰ターン数（落ち着かせられるか）</td>
+      <td>既存＋残留活性</td></tr>
+  <tr><td><span class="badge">B1</span> 侵入記憶</td>
+      <td>望まない想起／悩ませ度／他を考えられるか／月に何回</td>
+      <td><b>侵入強度 E</b>＝Σ負エピソード活性／<b>侵入率</b>＝非トラウマ入力(L4)で E&gt;θ の割合（＝望まない想起・頻度の代理）／<b>制御困難</b>＝集中度：E が全ノード活性に占める割合（高いほど他を考えにくい）</td>
+      <td>既存＋集中度指標</td></tr>
+  <tr><td><span class="badge">B3</span> フラッシュバック</td>
+      <td>再体験の強さ／現実認識の喪失（nowness）／どれくらい続くか</td>
+      <td><b>再体験強度 S</b>＝感覚表象(S-rep)の活性／<b>解離度</b>＝<code>S ÷ (S + C)</code>（C=文脈表象。高いほど“今また起きてる”）／<b>持続</b>＝Sの減衰ターン数</td>
+      <td>S-rep/C-rep 分割（要追加）＋残留活性</td></tr>
+  <tr><td>B2 悪夢</td><td>—</td><td>夢の機構が無いため<b>範囲外</b>（DSM-5 は B 1つ以上で足りる）</td><td>—</td></tr>
+</table></div>
+
+<div class="note"><b>B1 と B3 の違い＋B3の理論的根拠（Brewin 二重表象理論）：</b>
+B1「侵入記憶」は<b>記憶が“浮かぶ”</b>（あの出来事が勝手に頭に出る）＝負エピソードが光る、だけ。
+B3「フラッシュバック」は、Brewin の理論では <b>感覚表象(S-rep：光景・音・身体反応)が強く発火するのに、
+文脈表象(C-rep：“これは過去・あの場所の出来事”というタグ)が弱い＝解離</b>として定義される（海馬の文脈化失敗に対応）。
+だから B3 の核は「S が強いか」ではなく「<b>S が強く、かつ C が弱いか</b>」＝<code>S/(S+C)</code>。C がタグ付けに失敗するほど“今また起きている(nowness)”になる。</div>
+
+<div class="warn"><b>スコープ（正直な限界）：</b>本モデルは <b>S-rep/C-rep の不均衡（＝nowness の発生）まで</b>を扱う。
+前頭前野の制御機構が絡む<b>完全な解離（現実認識の完全な喪失）は範囲外</b>と明記する。純粋な連想ネットワークでは
+制御レイヤーを表現しないため。</div>
+<p style="font-size:13.5px;color:var(--muted)">B5・B4・B1 の“強度”(R/M/E)は実験1で既に測っている量。実験2は、そこに <b>B3（S/C分割）</b>・<b>回復/持続の動態（残留活性）</b>・<b>発話</b>・<b>臨床承認</b>を足す。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">4</div><h2>新しく必要な機構：残留活性の減衰（引き波）</h2></div>
+<p>B3 の「持続」、B4・B5 の「回復（自分を落ち着かせられるか）」、B1 の「他を考えられるか」は、いずれも<b>時間とともに活性が引いていくか</b>の問題。いまはターンごとに活性がリセットされるので、<b>波が少しずつ引く仕組み</b>を足す。</p>
+<div class="note"><b>実装：</b> <code>A(t+1) = λ·A(t) + 新規入力</code>。引き金の後に中立な発話を続け、活性が平静に戻るまでの<b>ターン数</b>を測る。<b>λ は全条件で固定</b>し、回復の速さ（速い＝健常、遅い＝PTSD）は<b>構造から創発</b>させる（外付けにしない）。これ自体が「過覚醒が続く」という症状のモデル化なので、取ってつけた感なく本筋に乗る。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">5</div><h2>実験2の全体像：発話 × グラフ × 臨床承認</h2></div>
+<p>1つのキューに対して、次の3層を並べて評価する：</p>
+<div class="tablebox"><table>
+  <tr><th>層</th><th>内容</th></tr>
+  <tr><td>① グラフ測定</td><td>上表の B1/B3/B4/B5 の量を拡散活性から算出（自動・大量）</td></tr>
+  <tr><td>② 患者発話</td><td>その内部状態から患者の発話を生成し、CAPS-5 の B 挙動を自動評定（例 B3＝再体験的発話、B5＝身体反応の言及）</td></tr>
+  <tr><td>③ 臨床承認</td><td>井野先生が「①↔②↔CAPS-5 の対応づけ」の妥当性を監査し、サブサンプルを自ら採点して一致(κ)を確認</td></tr>
+</table></div>
+<p>①でN（量）を稼ぎ、③で質を担保。②が①と整合すれば「内部機構（グラフ）から CAPS-5 の症状発話が創発している」と言える。比較は<b>忠実版グラフ vs 演技ベース vs 健常統制グラフ</b>。</p>
+<div class="key"><b>この設計の主張：</b>PTSD の異なる症状（侵入記憶・フラッシュバック・心理的苦痛・生理反応）が、<b>ひとつの記憶構造の異なる読み出し</b>として統一的に出てくる。症状ごとにルールを書くのではなく、構造から創発する——これが「演技」ではなく「構造から創発」の実証になる。</div>
+</section>
+
+<footer>
+<b>シリーズ</b>：<a href="00_overview.html">はじめに読む</a> ／
+<a href="20260713_theory_audit.html">理論の棚卸し</a> ／
+<a href="20260713_ontology_redesign.html">忠実版オントロジー設計</a> ／
+<a href="20260713_faithful_results.html">実験1・結果</a> ／
+<a href="20260713_corpus_sensitivity.html">感度チェック</a> ／ 本ページ＝実験2の設計<br><br>
+<b>用語</b>：B1〜B5＝CAPS-5 の侵入症状基準 ／ 残留活性＝ターンをまたいで残る活性（回復・持続の測定用）／
+束ね＝BINDS（記憶↔感覚・反応）／ κ＝評定者間一致
+</footer>
+
+</div>
+</body>
+</html>

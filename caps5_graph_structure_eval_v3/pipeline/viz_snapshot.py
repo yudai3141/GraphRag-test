@@ -4,9 +4,9 @@
 色分け：刺激=橙 / 反応=青 / 意味=赤 / エピソード=緑。
 
 実行例:
-  uv run --extra viz python -m evaluation_v3.viz_snapshot                      # graph_faithful.json
-  uv run --extra viz python -m evaluation_v3.viz_snapshot data/graph_plus_daily.json
-  uv run --extra viz python -m evaluation_v3.viz_snapshot data/graph_faithful.json out.html
+  uv run --extra viz python -m caps5_graph_structure_eval_v3.viz_snapshot                      # graph_faithful.json
+  uv run --extra viz python -m caps5_graph_structure_eval_v3.viz_snapshot data/graph_plus_daily.json
+  uv run --extra viz python -m caps5_graph_structure_eval_v3.viz_snapshot data/graph_faithful.json out.html
 """
 
 import os
@@ -16,7 +16,7 @@ from actr_foa_kozak_v2 import config
 
 from . import snapshot
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
+_HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 _COLOR = {
     config.STIMULUS_LABEL: "#f58231",   # 橙
@@ -75,7 +75,7 @@ def main() -> None:
     config.load_env()
     gp = sys.argv[1] if len(sys.argv) > 1 else os.path.join(_HERE, "data", "graph_faithful.json")
     if not os.path.isabs(gp):
-        gp = os.path.join(_HERE, gp) if not gp.startswith("evaluation_v3") else gp
+        gp = os.path.join(_HERE, gp) if not gp.startswith("caps5_graph_structure_eval_v3") else gp
     out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(_HERE, "graph_view.html")
     export(gp, out)
 
