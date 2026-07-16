@@ -11,8 +11,8 @@
   no_bind    … 記憶の束ね(BINDS)を除去。エピソード↔S-R-M の寄与を見る
   no_spread  … 拡散なし・入口の類似度のみ（≒ベクタ検索/GraphRAG 相当）
 
-実行: uv run python -m evaluation_v3.runner [グラフJSON] [バッテリーJSON]
-出力: evaluation_v3/results/metrics.csv（1キュー×1条件=1行）
+実行: uv run python -m caps5_graph_structure_eval_v3.runner [グラフJSON] [バッテリーJSON]
+出力: caps5_graph_structure_eval_v3/results/metrics.csv（1キュー×1条件=1行）
 """
 
 import csv
@@ -27,16 +27,17 @@ from actr_foa_kozak_v2.retrieval.spreading import SpreadingActivation
 
 from . import cue_battery, snapshot
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
+_HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_OUT = os.path.join(_HERE, "results", "metrics.csv")
 
 FIELDS = [
     "cue", "level", "condition",
     "seed_top_sim", "n_seeds",
-    "resp_act",       # 怖がり度＝反応要素の活性（新・主指標）
-    "meaning_act",    # 恐怖の「内容」＝意味要素の活性（補助）
-    "neg_ep_act",     # 侵入記憶＝負エピソードの活性
+    "resp_act",       # B5 生理反応＝反応要素の活性（＝怖がり度）
+    "meaning_act",    # B4 心理的苦痛＝脅威・負の意味要素の活性
+    "neg_ep_act",     # B1 侵入記憶＝負エピソードの活性
     "pos_ep_act",     # 回復の入口＝正エピソードの活性
+    "total_act",      # 全ノード活性合計（B1 集中度＝neg_ep_act/total_act 用）
     "triggered",
 ]
 
@@ -68,8 +69,10 @@ def measure(engine: SpreadingActivation, graph: FearGraph, cue: str) -> dict:
     activation, _reached, seeds = engine.compute(cue, graph)
 
     resp = meaning = 0.0
+    total = 0.0
     eps = []  # (activation, valence)
     for key, a in activation.items():
+        total += a
         node = by_key.get(key)
         if node is not None:
             if node.label == config.RESPONSE_LABEL:
@@ -98,6 +101,7 @@ def measure(engine: SpreadingActivation, graph: FearGraph, cue: str) -> dict:
         "meaning_act": round(meaning, 4),
         "neg_ep_act": round(neg, 4),
         "pos_ep_act": round(pos, 4),
+        "total_act": round(total, 4),
         "triggered": int(triggered),
     }
 
@@ -106,6 +110,7 @@ def main() -> None:
     config.load_env()
     graph_path = sys.argv[1] if len(sys.argv) > 1 else snapshot.DEFAULT_PATH
     battery_path = sys.argv[2] if len(sys.argv) > 2 else cue_battery.DEFAULT_PATH
+    out_path = sys.argv[3] if len(sys.argv) > 3 else DEFAULT_OUT
 
     graph = snapshot.load(graph_path)
     cues = cue_battery.load(battery_path)
@@ -121,12 +126,12 @@ def main() -> None:
         if i % 20 == 0:
             print(f"  {i}/{len(cues)} キュー完了")
 
-    os.makedirs(os.path.dirname(DEFAULT_OUT), exist_ok=True)
-    with open(DEFAULT_OUT, "w", newline="") as f:
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDS)
         writer.writeheader()
         writer.writerows(rows)
-    print(f"✅ {len(rows)} 行を書き出し → {DEFAULT_OUT}")
+    print(f"✅ {len(rows)} 行を書き出し → {out_path}")
 
     conds = list(conditions)
     levels = sorted({r["level"] for r in rows})

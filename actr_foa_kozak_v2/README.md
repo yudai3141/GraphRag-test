@@ -26,7 +26,7 @@ PTSD 対話エージェント（**Foa & Kozak 恐怖構造 v2**）。
 > **理論忠実化（2026-07）**: 一次文献（Foa & Kozak 1986 / Lang / Collins & Loftus 1975）に
 > 当たり直し、根拠のなかった中核評価の固定4カテゴリ・単一「危険」ハブ・外付けの脅威バイアス・
 > 関係タイプ別の重み・負→負エッジを撤去した。経緯と評価は
-> [`../evaluation_v3/`](../evaluation_v3/README.md)（`docs/00_overview.html` が入口）を参照。
+> [`../caps5_graph_structure_eval_v3/`](../caps5_graph_structure_eval_v3/README.md)（`docs/00_overview.html` が入口）を参照。
 > 本 README の以下は**忠実版**を記す。旧・中核前提の記述が残る箇所は順次更新中。
 
 オントロジーは**二層**。恐怖構造レイヤ（刺激・反応・意味）を、エピソード記憶レイヤ

@@ -14,8 +14,8 @@
   4 = 中立        … トラウマと無関係な日常会話
   5 = ポジティブ    … 楽しい・安心の話題（回復方向）
 
-実行: uv run python -m evaluation_v3.cue_battery [1レベルあたりの個数=20]
-出力: evaluation_v3/data/cue_battery.json
+実行: uv run python -m caps5_graph_structure_eval_v3.cue_battery [1レベルあたりの個数=20]
+出力: caps5_graph_structure_eval_v3/data/cue_battery.json
 """
 
 import json
@@ -29,7 +29,7 @@ from pydantic import BaseModel, Field
 
 from actr_foa_kozak_v2 import config
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
+_HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_PATH = os.path.join(_HERE, "data", "cue_battery.json")
 
 LEVELS = {

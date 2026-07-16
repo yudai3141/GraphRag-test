@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="270" viewBox="0 0 760 270" font-family="Helvetica Neue, Arial, sans-serif">
+  <defs>
+    <marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9AA7AE"/></marker>
+  </defs>
+  <text x="380" y="24" font-size="13.5" font-weight="700" text-anchor="middle" fill="#26323B">"no-BINDS": we cut ONLY the 2 green links — every other edge stays</text>
+
+  <!-- nodes -->
+  <rect x="30" y="106" width="130" height="50" rx="10" fill="#FDEFE3" stroke="#f58231" stroke-width="1.6"/>
+  <text x="95" y="128" text-anchor="middle" font-size="10.5" font-weight="700" fill="#B05A10">STIMULUS</text>
+  <text x="95" y="146" text-anchor="middle" font-size="12.5" font-weight="600">unknown man</text>
+
+  <rect x="330" y="44" width="130" height="46" rx="10" fill="#E9EDFB" stroke="#4363d8" stroke-width="1.6"/>
+  <text x="395" y="64" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4363d8">RESPONSE</text>
+  <text x="395" y="81" text-anchor="middle" font-size="12.5" font-weight="600">racing heart</text>
+
+  <rect x="330" y="172" width="130" height="46" rx="10" fill="#FCE8ED" stroke="#e6194B" stroke-width="1.6"/>
+  <text x="395" y="192" text-anchor="middle" font-size="10.5" font-weight="700" fill="#e6194B">MEANING</text>
+  <text x="395" y="209" text-anchor="middle" font-size="12.5" font-weight="600">"danger"</text>
+
+  <rect x="600" y="106" width="130" height="50" rx="10" fill="#E8F6EA" stroke="#2E8B3D" stroke-width="1.6"/>
+  <text x="665" y="128" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2E8B3D">EPISODE</text>
+  <text x="665" y="146" text-anchor="middle" font-size="12.5" font-weight="600">that night</text>
+
+  <!-- KEPT edges (solid grey) -->
+  <line x1="160" y1="120" x2="328" y2="72" stroke="#9AA7AE" stroke-width="1.7" marker-end="url(#k)"/>
+  <text x="238" y="86" text-anchor="middle" font-size="10" fill="#5C6E79">EVOKES (kept)</text>
+  <line x1="160" y1="142" x2="328" y2="190" stroke="#9AA7AE" stroke-width="1.7" marker-end="url(#k)"/>
+  <text x="238" y="182" text-anchor="middle" font-size="10" fill="#5C6E79">MEANS (kept)</text>
+  <line x1="160" y1="131" x2="598" y2="131" stroke="#9AA7AE" stroke-width="1.7" marker-end="url(#k)"/>
+  <text x="520" y="124" text-anchor="middle" font-size="10" fill="#5C6E79">RECALLS (kept)</text>
+
+  <!-- CUT edges (BINDS, dashed + X) -->
+  <line x1="598" y1="118" x2="462" y2="72" stroke="#C6CFD3" stroke-width="1.7" stroke-dasharray="5 4"/>
+  <line x1="598" y1="144" x2="462" y2="190" stroke="#C6CFD3" stroke-width="1.7" stroke-dasharray="5 4"/>
+  <text x="533" y="86" font-size="15" font-weight="700" fill="#B4325A" text-anchor="middle">✕</text>
+  <text x="533" y="182" font-size="15" font-weight="700" fill="#B4325A" text-anchor="middle">✕</text>
+  <text x="533" y="140" font-size="10.5" font-weight="700" fill="#B4325A" text-anchor="middle">BINDS (cut)</text>
+
+  <text x="380" y="252" font-size="11.5" text-anchor="middle" fill="#5C6E79">The stimulus still EVOKES the response and RECALLS the episode. So the bodily response (R) is unchanged;</text>
+  <text x="380" y="266" font-size="11.5" text-anchor="middle" fill="#5C6E79">the memory (E) is still reached via RECALLS but no longer re-amplified through its bundle, so it is recalled far less.</text>
+</svg>
