@@ -33,7 +33,12 @@
 | | `pipeline/viz_snapshot.py` | pyvis インタラクティブ HTML（任意） |
 | **報告書** | `report/render_paper.py` | Markdown → 図埋め込み自己完結 HTML |
 | | `report/render_pdf.sh` | HTML → PDF（ヘッドレス Chrome） |
+| **デモ** | `demo/probe.py` | 1発話 → 抽出（入口/反応/意味/過去/モード）＋応答のトレース。Neo4j 非依存 |
+| | `demo/render_demo.py` | 面接バッテリーを通して質問応答例を HTML/Markdown 出力 |
+| | `demo/app.py` | ライブ UI（Streamlit）。発話→内部連想→応答をその場で観察 |
 | **成果物** | `paper/short_paper*.{md,html,pdf}` | ショートペーパー（日本語＝提出用／英語） |
+| | `paper/chi_draft*.md` | CHI フルペーパーのドラフト骨組み（日英。Study 2 は設計中） |
+| | `meetings/` | 臨床監修 MTG 準備メモ（「何に応えられて何に応えられないか」等） |
 | | `figures/` | 図（`fig1–3.png`・模式図 `*.svg`・実グラフ `graph_ptsd_view.png`） |
 | | `results/` | `metrics_{ptsd,balanced,healthy}.csv`・`summary.json` |
 | | `data/` | `cue_battery.json`・source 記述・`graph_exp_*.json`（大きい・gitignore） |

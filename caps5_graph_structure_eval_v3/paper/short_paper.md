@@ -56,7 +56,10 @@ Schematic A is a concept sketch; a graph actually built from a first-person acco
 
 ### 3.2 Spreading activation: how reactivity is produced
 
-Recall runs by spreading activation (see Terms). The steps: (1) embed the input utterance as a vector and seed activation at the semantically nearest stimulus nodes — we call this the **entry step**; (2) let activation flow along edges, weakening at each hop and dividing when it branches; (3) read the activation that accumulated at each node. Following Lang, we read **fear** from the activation on response nodes.
+Recall runs by spreading activation (see Terms). The steps: (1) embed the input utterance as a vector and seed activation at the semantically nearest stimulus nodes — we call this the **entry step** (top 3, cosine similarity ≥ 0.20); (2) let activation flow along edges, weakening at each hop (hop decay ×0.6) and dividing when it branches (fan effect); links are undirected/symmetric, so flow also runs backward, and it stops after 3 hops; (3) read the activation that accumulated at each node. Following Lang, we read **fear** from the activation on response nodes. Fig. D shows this "utterance → entry → spread → readout" flow on one page.
+
+![How an utterance enters the graph and spreads](../figures/schematic_spreading_en.svg)
+**Fig. D. From an input utterance, through the graph, to symptom readouts.** (1) Entry: the utterance is embedded and ignites the nearest stimulus by cosine similarity (ignition = thick-bordered orange). (2) Spreading: activation follows the fear-structure edges (EVOKES/MEANS/CO_OCCURS/RECALLS/BINDS) for up to 3 hops, decaying ×0.6 per hop (circles shrink) and splitting across out-edges (fan effect); because links are undirected it also flows backward. (3) Readout: the accumulated activation is summed by node type into response=R (B5), meaning=M (B4), and negative-episode=E (B1). The green dashed BINDS is the bridge that re-binds an episode to its response/meaning, amplifying memory recall (E).
 
 ### 3.3 Mapping the CAPS-5 intrusion criteria to graph measurements
 
@@ -118,11 +121,15 @@ When both hold, the agent treats the cue as dangerous (e.g. "a man behind you" �
 
 ## 5. Results
 
-The three figures answer **three different questions** (flashback B3 is not measured here).
+**How the three experiments stand together.** The three experiments (Figs. 1–3) are not independent tests; they build one claim in stages. Experiment 1 establishes that *the phenomenon exists*; Experiment 2 asks whether *it is a genuine mechanism* (not a by-product of text similarity); Experiment 3 asks whether *it is specific to trauma* (not an artifact of the method). Each stage answers a more falsifiable question than the last, closing off the rival hypotheses the previous stage leaves open.
 
-- **Fig. 1 — Do the symptoms come apart?** Within one PTSD graph, we look at the three readouts R/M/E (= B5/B4/B1) in detail.
-- **Fig. 2 — Is the reaction produced by the graph, and what drives memory recall?** Ablations that remove parts.
-- **Fig. 3 — Is the over-generalization specific to trauma?** Compare against a healthy graph built the same way.
+| | Fig. | Question | Target / comparison | Claim that fails without it |
+|---|---|---|---|---|
+| **Exp. 1** Phenomenon | 1 | Does it react like a fear memory, and do the symptoms separate? | *Within* the PTSD graph, R/M/E by level | that the graph distinguishes fear at all (a flat curve makes the rest moot) |
+| **Exp. 2** Mechanism | 2 | Is the reaction produced by propagation / what drives recall? | *Ablations* on the same graph | that reactivity comes from **propagation**, not mere entry-step text similarity; the two-layer division of labor |
+| **Exp. 3** Specificity | 3 | Is the over-generalization specific to trauma, or a method artifact? | a size-matched **healthy graph** | that over-generalization is not something any large graph would show |
+
+We take them in this order (flashback B3 is not measured here).
 
 ### 5.1 Does the graph react like a fear memory, and do symptoms separate? (Fig. 1)
 
