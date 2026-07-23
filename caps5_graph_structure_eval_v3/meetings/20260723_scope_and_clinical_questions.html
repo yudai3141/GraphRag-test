@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>このアーキテクチャは何に応えられて、何に応えられないか — 臨床監修に確認したいこと</title>
+<style>
+:root{
+  --ink:#26323B; --muted:#5C6E79; --paper:#FAFBFA; --card:#FFFFFF;
+  --line:#E2E7E5; --accent:#0E7490; --accent-soft:#EAF4F6;
+  --yes:#2E8B3D; --yes-t:#E8F6EA; --no:#B4325A; --no-t:#FBEAF0;
+  --cap:#7B4FA6; --cap-t:#F3ECF9; --warn:#B26A00; --warn-t:#FBF1E2;
+  --stim:#f58231; --resp:#4363d8; --mean:#e6194B; --epi:#2E8B3D;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:15.5px; line-height:1.95; -webkit-font-smoothing:antialiased}
+.wrap{max-width:820px; margin:0 auto; padding:56px 24px 96px}
+.eyebrow{color:var(--accent); font-size:12.5px; font-weight:600; letter-spacing:.14em; margin:0 0 10px}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:27px; line-height:1.5; font-weight:600; margin:0 0 10px; text-wrap:balance}
+.lede{color:var(--muted); margin:0; max-width:44em}
+section{margin-top:58px}
+.sechead{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+.num{flex:none; width:30px; height:30px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; transform:translateY(4px)}
+h2{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:21px; font-weight:600; margin:0; line-height:1.6; text-wrap:balance}
+h3{font-size:16px; font-weight:700; margin:30px 0 6px}
+p{margin:12px 0; max-width:44em}
+.key{background:var(--accent-soft); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.key b{color:var(--accent)}
+.note{background:var(--cap-t); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.note b{color:var(--cap)}
+.warn{background:var(--warn-t); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.warn b{color:var(--warn)}
+.cols{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:22px 0}
+@media(max-width:640px){.cols{grid-template-columns:1fr}}
+.col{border-radius:12px; padding:16px 18px; border:1px solid var(--line); background:var(--card)}
+.col.yes{border-top:3px solid var(--yes)}
+.col.no{border-top:3px solid var(--no)}
+.col h4{margin:0 0 6px; font-size:14.5px}
+.col.yes h4{color:var(--yes)}
+.col.no h4{color:var(--no)}
+.col ul{margin:8px 0 0; padding-left:18px}
+.col li{margin:9px 0; font-size:13.7px; line-height:1.7}
+.q{border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; background:var(--card); padding:14px 18px; margin:14px 0}
+.q .tag{display:inline-block; font-size:11.5px; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:6px; padding:1px 8px; margin-bottom:6px}
+.q p{margin:6px 0}
+.q .sub{color:var(--muted); font-size:13px}
+figure{margin:24px 0; padding:0}
+.diagram{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 14px 10px; overflow-x:auto}
+figcaption{font-size:13px; color:var(--muted); margin-top:8px; line-height:1.7}
+svg text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif}
+code{background:var(--accent-soft); border-radius:5px; padding:1px 7px; font-size:13px}
+a{color:var(--accent)}
+footer{margin-top:72px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">臨床監修 MTG 準備メモ — 2026年7月23日</p>
+<h1>このアーキテクチャは<br>何に応えられて、何に応えられないか</h1>
+<p class="lede">v3（恐怖構造グラフ＋拡散活性）に、「固定ネットワークは勿体ない。<b>作用させてネットワークが変化する</b>方向へ広げるべき」という示唆をいただいた。これを受けて、<b>この計算機モデルが臨床的に何を表現できて、何を表現できないのか</b>を工学側で言語化し、臨床監修の先生に確認・監査してもらうべき論点を整理する。工学部脳で暗黙知化している前提を共有するのが目的。</p>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">1</div><h2>いま作ってあるものを一言で</h2></div>
+<p>患者を prompt で「不安な人だ」と指定するのではなく、<b>一人称の語りから作った恐怖の連想ネットワーク（刺激→反応→意味＋記憶）に、きっかけの発話を投げ、活性がどこまで広がるかを測る</b>もの。恐怖は「反応ノードの活性」から読み、CAPS-5 の侵入症状 B5/B4/B1 に対応づける。現状の実験1で示せたのは「<b>ある瞬間の断面</b>」——トラウマ関連のきっかけほど強く光り、無関係にも光ってしまう（過般化）こと、健常グラフではそうならないこと。</p>
+<div class="key"><b>要点：</b>いまのモデルは <b>時間の流れ</b>ではなく <b>構造</b>で症状を測っている。そして構造は <b>固定</b>されている（対話で書き換わらない）。ここが「可変化」案・CAPS-5 の両方に効いてくる。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">2</div><h2>応えられること／応えられないこと（現状）</h2></div>
+<div class="cols">
+  <div class="col yes">
+    <h4>◯ 応えられる（静的グラフ＋拡散活性）</h4>
+    <ul>
+      <li><b>断面の反応性</b>：あるきっかけで恐怖ネットワークがどれだけ・どこまで光るか（R/M/E）</li>
+      <li><b>過般化の有無と勾配</b>：無関係な刺激にも反応してしまうか＝PTSD らしさの構造的指標</li>
+      <li><b>症状の分離</b>：B1/B4/B5 が同じ機構の別々の読み出しとして分かれること</li>
+      <li><b>群間比較</b>：PTSD／健常／balanced の反応プロファイルの違い</li>
+      <li><b>構造と症状の対応</b>：どの配線がどの症状を担うか（BINDS 除去＝解離）</li>
+      <li><b>介入“前後”の断面比較</b>：グラフを差し替えれば A と B は比べられる</li>
+    </ul>
+  </div>
+  <div class="col no">
+    <h4>✕ 応えられない（いまのところ）</h4>
+    <ul>
+      <li><b>時間経過・頻度・持続</b>：CAPS-5 は「過去1ヶ月、どのくらいの頻度で」を問うが、モデルに<b>時間軸がない</b>→代理指標が要る</li>
+      <li><b>回復の“過程”</b>：介入でネットワークが変わっていく動態（＝Stage 2・可変化案でこれから）</li>
+      <li><b>B3 の制御レベルの解離・B2 悪夢</b>：範囲外／機構なし</li>
+      <li><b>侵入(B)以外</b>：回避(C)・認知気分の陰性変化(D)・覚醒(E) は未モデル</li>
+      <li><b>対話としての治療プロセス</b>：治療同盟・逐語の自然さ・面接の運び</li>
+      <li><b>意味づけ内容の臨床的正しさ</b>：valence は LLM 付与（negative/neutral/positive）</li>
+      <li><b>個人差・N</b>：現状は一人の語りベース</li>
+    </ul>
+  </div>
+</div>
+<div class="warn"><b>特に共有したいズレ：</b>いまのモデルは「今この瞬間、どれだけ怖がるか」は測れるが、「先週より良くなったか」は測れない。CAPS-5 の物差しの多くは<b>時間の言葉</b>でできているので、そこは正直に代理するしかない。この“できなさ”こそ最初に握っておきたい。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">3</div><h2>「固定 → 可変」へ。動態で妥当性を示す</h2></div>
+<p>いただいた示唆は、評価の型そのものを変える。固定グラフの「断面が妥当か」ではなく、<b>作用させたときの動き方が妥当か</b>で評価する。</p>
+
+<figure>
+<div class="diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="250" viewBox="0 0 760 250">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9AA7AE"/></marker></defs>
+  <rect x="40" y="95" width="150" height="60" rx="10" fill="#fff" stroke="#D8DEDC" stroke-width="1.4"/>
+  <text x="115" y="120" text-anchor="middle" font-size="12.5" font-weight="700" fill="#26323B">恐怖ネットワーク</text>
+  <text x="115" y="139" text-anchor="middle" font-size="11" fill="#5C6E79">（現在の状態）</text>
+  <line x1="190" y1="125" x2="248" y2="125" stroke="#9AA7AE" stroke-width="1.6" marker-end="url(#a)"/>
+  <rect x="250" y="95" width="150" height="60" rx="10" fill="#EAF4F6" stroke="#0E7490" stroke-width="1.3"/>
+  <text x="325" y="120" text-anchor="middle" font-size="12.5" font-weight="700" fill="#0E7490">介入（対話）</text>
+  <text x="325" y="139" text-anchor="middle" font-size="11" fill="#5C6E79">エッジの張り替え</text>
+  <line x1="400" y1="125" x2="458" y2="125" stroke="#9AA7AE" stroke-width="1.6" marker-end="url(#a)"/>
+  <rect x="460" y="36" width="270" height="72" rx="10" fill="#E8F6EA" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="476" y="62" font-size="12.5" font-weight="700" fill="#1d6b2b">適切な介入 → 活性が下がる</text>
+  <text x="476" y="82" font-size="11.5" fill="#5C6E79">恐怖反応率↓（＝回復らしさ）</text>
+  <text x="476" y="99" font-size="11.5" fill="#5C6E79">曝露・再解釈がうまくいった</text>
+  <rect x="460" y="142" width="270" height="72" rx="10" fill="#FBEAF0" stroke="#B4325A" stroke-width="1.3"/>
+  <text x="476" y="168" font-size="12.5" font-weight="700" fill="#8f2547">不適切な介入 → 活性が上がる</text>
+  <text x="476" y="188" font-size="11.5" fill="#5C6E79">恐怖反応率↑（＝悪化）</text>
+  <text x="476" y="205" font-size="11.5" fill="#5C6E79">★本物の患者では試せない領域</text>
+</svg>
+</div>
+<figcaption>妥当性を「動態」で示す：適切な介入で活性が下がり、不適切な介入で活性が上がるなら、モデルが臨床的にもっともらしく振る舞っている一つの証拠になる。<b>「不適切な介入で悪化する」を安全に扱える</b>のが、実患者にも LLM 役割演技にもできないこの計算機実験の強み。</figcaption>
+</figure>
+
+<p>さらに、活性の高低とは別の問いもある——<b>エッジを張り替えた後の「よくない感じ」は測れるのか？</b> つまり「この繋がり方は不健康だ」という、<b>活性量とは独立した“構造そのものの良し悪し”</b>があるのではないか。ここは工学だけでは決められない（＝臨床監修に聞くべき核心）。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">4</div><h2>臨床監修に確認したいこと</h2></div>
+
+<h3>A. 妥当性の基準</h3>
+<div class="q"><span class="tag">A-1</span>
+<p>「<b>適切な介入 → 活性↓／不適切な介入 → 活性↑</b>」という動き方を、モデルの妥当性の証拠とみなすのは臨床的に納得できますか？ これが成り立てば「リアリティが破綻していない PTSD モデル」と言えそうか。</p></div>
+<div class="q"><span class="tag">A-2</span>
+<p>活性の高低（反応性）とは<b>別に</b>、「構造そのものが不健康」と言える臨床的特徴はありますか？</p>
+<p class="sub">例：危険の意味づけが過剰に結合している／安全信号が孤立している／特定の刺激に連想が集中しすぎている 等。「活性は低いのに構造は良くない」という状態が臨床的にありうるか。</p></div>
+
+<h3>B. 「適切／不適切な介入」を具体化する</h3>
+<div class="q"><span class="tag">B-1</span>
+<p>臨床的な「適切な曝露・再解釈」と「不適切（有害）な介入」の典型例を、<b>“連想の張り替え”に翻訳できる粒度</b>で教えてください。</p>
+<p class="sub">例（工学側の仮の理解）：早すぎる曝露／安全を確保しない直面／破局的再評価の強化／回避の強化。これらがネットワーク上でどのエッジをどう変える操作に当たるかを一緒に詰めたい。</p></div>
+<div class="q"><span class="tag">B-2</span>
+<p>「不適切な介入で悪化する様子を計算機で示せる」ことに、臨床・教育上の価値はありますか？（訓練者が“やってはいけない介入”を安全に体験できる、という位置づけで妥当か）</p></div>
+
+<h3>C. CAPS-5 を物差しにする件</h3>
+<div class="q"><span class="tag">C-1</span>
+<p>CAPS-5 は頻度・持続・時間変化の比重が大きいですが、<b>時間軸のない（またはステップ的な）モデル</b>では、その項目を何で代理すれば臨床的に許容されますか？</p></div>
+<div class="q"><span class="tag">C-2</span>
+<p>代わりに「<b>回復した人／していない人の発話・情報処理の違い</b>」を比較軸にするのは、臨床的に意味のある対比ですか？ CAPS-5 に固執しない選択肢として検討中です。</p></div>
+
+<h3>D. 面接ダイアログの臨床的妥当性</h3>
+<div class="q"><span class="tag">D-1</span>
+<p>下のような初回面接で、この模擬患者が「訓練に使える」ために<b>最低限できていないといけない振る舞い</b>は何ですか？</p>
+<p class="sub">① 今日はお話の機会をありがとうございます。どんな症状がありますか？<br>② 眠れないんですね。原因に心当たりは？ それに対してどうなってほしいですか？</p></div>
+<div class="q"><span class="tag">D-2</span>
+<p>逆に、何をやると「これは患者ではない」と<b>即座に破綻して見える</b>（reality break）でしょうか。避けるべき失敗の型を知りたい。</p></div>
+
+<h3>E. 工学側の暗黙知の共有（前提のズレ点検）</h3>
+<div class="q"><span class="tag">E</span>
+<p>以下を平易に共有し、臨床像とズレる箇所を指摘してほしい：<br>
+・症状は<b>記憶構造から生成</b>される（prompt 指定ではない）<br>
+・恐怖は<b>反応ノードの活性</b>から読む（＝身体反応を感情の中心に置く）<br>
+・いまは<b>時間ではなく構造</b>で測っている（＝「頻度・持続」は直接は出せない）<br>
+・連想は<b>無向・重み一律</b>（連想の強弱・方向の非対称は今はモデル化していない）</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">5</div><h2>これに伴うイントロ・評価軸の分岐</h2></div>
+<p>可変化案を採ると、論文の主張とイントロも動く。整理して感触も聞きたい点：</p>
+<div class="note"><b>評価軸の格上げ：</b>「静的な妥当性（実験1＝断面の過般化）」から「<b>動態的な妥当性</b>（適切/不適切な介入への応答）」へ広げること自体が、この研究のコントリビューションになりうる。「その評価の枠組みを固めたこと」が価値、という見立て。</div>
+<p><b>生成AIとの比較へ“あえて行かない”選択。</b> 生成 AI 患者との優劣比較は魅力的だが、CAPS-5 を土俵にすると時間変化の要素で不利になりがち（比べ方が噛み合わない）。むしろ<b>情報処理モデルとして「治った／治っていない」を分ける</b>方向の方が、この構造ベースの強みが出るかもしれない。ここは戦略判断なので、臨床的にどちらの対比が説得力を持つか意見がほしい。</p>
+</section>
+
+<footer>
+caps5_graph_structure_eval_v3/meetings/20260723_scope_and_clinical_questions.html ／ 臨床監修 MTG 準備。関連：<a href="../docs/00_overview.html">はじめに読む</a>・<a href="../docs/20260715_experiment2_design.html">実験2の設計</a>・論文ドラフト <code>../paper/chi_draft_ja.md</code>
+</footer>
+
+</div>
+</body>
+</html>

@@ -23,6 +23,10 @@ caps5_graph_structure_eval_v3/paper/*.html
 caps5_graph_structure_eval_v3/paper/*.pdf
 caps5_graph_structure_eval_v3/graph_view.html
 
+# caps5_graph_structure_eval_v3: デモの生成物（temperature>0 で毎回変わる・スクリプトから再生成可）
+caps5_graph_structure_eval_v3/demo/qa_examples.html
+caps5_graph_structure_eval_v3/demo/qa_examples.md
+
 # caps5_graph_structure_eval_v3: 退避した旧ドキュメント・進捗報告用の生成物
 caps5_graph_structure_eval_v3/docs/archive/
 caps5_graph_structure_eval_v3/progress_report.pptx
