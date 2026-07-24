@@ -7,6 +7,11 @@ Neo4j 非依存（スナップショット JSON）。左に会話、右に「入
 """
 
 import os
+import sys
+
+# `streamlit run app.py` はこのファイルをパッケージ外のスクリプトとして実行するため、
+# リポジトリルートを import パスに通し、絶対 import で読む（相対 import は使えない）。
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import streamlit as st
 
@@ -15,8 +20,8 @@ from actr_foa_kozak_v2.infrastructure.embeddings import EmbeddingService
 from actr_foa_kozak_v2.infrastructure.llm import LLMClient
 from actr_foa_kozak_v2.retrieval.spreading import SpreadingActivation
 
-from . import probe
-from ..pipeline import snapshot
+from caps5_graph_structure_eval_v3.demo import probe
+from caps5_graph_structure_eval_v3.pipeline import snapshot
 
 _HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_GRAPH = os.path.join(_HERE, "data", "graph_exp_ptsd.json")

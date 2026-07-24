@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>このモデルは、話しかけられてから答えるまで何をしているか</title>
+<style>
+:root{
+  --ink:#26323B; --muted:#5C6E79; --paper:#FAFBFA; --card:#FFFFFF;
+  --line:#E2E7E5; --accent:#0E7490; --accent-soft:#EAF4F6;
+  --stim:#f58231; --resp:#4363d8; --mean:#e6194B; --epi:#2E8B3D;
+  --leap:#B4325A; --calm:#0E7490; --ai:#7B4FA6; --ai-t:#F3ECF9;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  font-size:15.5px; line-height:1.95; -webkit-font-smoothing:antialiased}
+.wrap{max-width:820px; margin:0 auto; padding:56px 24px 96px}
+.eyebrow{color:var(--accent); font-size:12.5px; font-weight:600; letter-spacing:.14em; margin:0 0 10px}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:26px; line-height:1.5; font-weight:600; margin:0 0 10px; text-wrap:balance}
+.lede{color:var(--muted); margin:0; max-width:44em}
+section{margin-top:56px}
+.sechead{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+.num{flex:none; width:30px; height:30px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; transform:translateY(4px)}
+h2{font-family:"Hiragino Mincho ProN","Yu Mincho",serif; font-size:21px; font-weight:600; margin:0; line-height:1.6; text-wrap:balance}
+h3{font-size:15.5px; font-weight:700; margin:24px 0 6px}
+p{margin:12px 0; max-width:44em}
+.key{background:var(--accent-soft); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.key b{color:var(--accent)}
+.note{background:var(--ai-t); border-radius:10px; padding:14px 18px; font-size:14px; margin:20px 0}
+.note b{color:var(--ai)}
+.plain{font-size:13.5px; color:var(--muted); background:#F6F8F8; border-radius:8px; padding:11px 14px; margin:12px 0}
+.plain b{color:var(--ink)}
+figure{margin:22px 0; padding:0}
+.diagram{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 14px 10px; overflow-x:auto}
+figcaption{font-size:13px; color:var(--muted); margin-top:8px; line-height:1.7}
+svg text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif}
+/* 入口ランキングのバー */
+.exbox{border:1px solid var(--line); border-radius:12px; background:var(--card); padding:16px 20px; margin:16px 0}
+.exbox.good{border-left:3px solid var(--epi)}
+.exbox.bad{border-left:3px solid var(--leap)}
+.exq{font-size:15px; font-weight:700; margin:0 0 3px}
+.extag{font-size:12px; font-weight:700; margin-bottom:10px}
+.exbox.good .extag{color:var(--epi)}
+.exbox.bad .extag{color:var(--leap)}
+.rank{display:flex; flex-direction:column; gap:7px; margin:8px 0 4px; position:relative}
+.rk{display:flex; align-items:center; gap:10px}
+.rk .nm{flex:none; width:120px; font-size:12.5px; text-align:right; color:var(--ink)}
+.rk .track{flex:1; background:#F0F2F2; border-radius:5px; height:18px; overflow:hidden}
+.rk .bar{display:block; height:18px; border-radius:5px; background:#D9DEDE}   /* 2番手以降＝薄いグレー（判定にほぼ効かない） */
+.rk.top .bar{background:var(--stim)}                                    /* 最も近い1本だけ強調 */
+.rk.top.miss .bar{background:var(--leap)}
+.rk .sc{flex:none; width:64px; font-size:12px; color:var(--muted)}
+.rk.top .sc{color:var(--ink); font-weight:700}
+.rklegend{font-size:11.5px; color:var(--muted); margin:6px 0 2px}
+.rklegend b{color:var(--leap)}
+.thr{font-size:11.5px; color:var(--leap); margin-top:8px}
+/* プロンプト表示 */
+.prompt{background:#F6F8F8; border:1px solid var(--line); border-radius:10px; padding:14px 16px;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:12.5px; line-height:1.8;
+  white-space:pre-wrap; overflow-x:auto; margin:14px 0; color:#333}
+.prompt .sys{color:var(--ai); font-weight:700}
+.inj{background:#FDF2E9; color:#9a5a1e; border-radius:3px; padding:0 4px; font-weight:700; font-family:inherit}
+.say{background:#FBFCFC; border:1px solid var(--line); border-radius:10px; padding:12px 16px; margin-top:10px}
+.say .sl{font-size:11.5px; font-weight:700; color:var(--muted)}
+.say p{margin:5px 0 0; font-size:15.5px; line-height:1.85}
+.q{border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; background:var(--card); padding:12px 18px; margin:12px 0}
+.q .tag{display:inline-block; font-size:11.5px; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:6px; padding:1px 8px; margin-bottom:4px}
+footer{margin-top:70px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+code{background:var(--accent-soft); border-radius:5px; padding:1px 7px; font-size:13px}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">臨床監修 共有メモ — 2026年7月24日</p>
+<h1>発話はグラフのどこに入り、<br>グラフからどう発話が生まれるか</h1>
+<p class="lede">恐怖記憶グラフの構造（刺激・反応・意味・記憶のつながり）は共有済みなので、ここでは<b>「話しかけられた言葉がグラフのどこに入り、どう活性が広がり、そこからどうやって返答が生まれるか」</b>を丁寧に説明します。おかしいと感じる点を指摘いただきたく。</p>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">0</div><h2>全体像：発話は、大きな網の“ごく一部”だけを光らせる</h2></div>
+<p>この模擬患者の中には、当事者の語りから作った<b>数百の点（ノード）からなる恐怖記憶の網</b>があります（下の左図）。点は刺激・反応・意味・記憶の4種類。話しかけると、その言葉に<b>意味の近い点だけに火がつき、つながりを伝って周りの一部だけが活性化</b>します（右図）。最後に、その<b>活性化した点の情報を生成AIに渡して発話させ</b>ます。流れは4段です。</p>
+<p style="font-size:14px"><b>① 話しかけられる</b> → <b>② 意味の近い点（＝入口）に着火</b> → <b>③ つながりを伝って一部が活性化</b> → <b>④ 活性化した点をAIに渡して発話</b></p>
+
+<figure>
+<img src="../figures/graph_activation_ptsd.png" alt="全体グラフと、電車の質問で一部だけ活性化したグラフ" style="width:100%; border:1px solid var(--line); border-radius:12px">
+<figcaption><b>左：</b>恐怖記憶の網の全体（527点）。<b>右：</b>「電車には乗れていますか？」と話しかけたとき、同じ配置のまま<b>光った点だけ</b>を色付きで示したもの（残りは灰色）。黒縁が最初に触れた入口（電車・車内・鍵の開いた車）。<b>数百の点のうち、つながった十数点だけが活性化</b>している。</figcaption>
+</figure>
+
+<div class="key"><b>ここが大事：</b>右図で名前のついた「電車」「車内」「鍵の開いた車」などは、この網の<b>点（ノード）の一つひとつ</b>です。以降の説明に出てくる語は、すべてこの点を指します。次から、①〜④の各段を順に見ます。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">1</div><h2>発話が、最初にどのノードを活性化するか（入口）</h2></div>
+<p>話しかけられると、まず<b>その言葉と意味の近い「刺激」ノードに最初の火をつけ</b>ます。ここが連想の入口です。「意味の近さ」をどう測るかを、先に説明します。</p>
+
+<div class="plain"><b>「意味の近さ」の測り方（埋め込み＝embedding）：</b>
+コンピュータは言葉の意味を直接は分かりません。そこで各言葉を<b>「意味を表す数百個の数字の並び」</b>に変換します。意味が似た言葉どうしは、この数字の並びも似た値になります（例：「電車」と「車内」は近く、「電車」と「料理」は遠い）。発話も同じ数字の並びに変換し、グラフの中の各刺激ノード（これも数字の並びを持っています）と一つずつ近さを測って、<b>最も近い上位いくつかに火をつける</b>——これが入口です。近さには 0〜1 くらいの値がつき、<b>一定以上（約0.35）</b>で「しっかり触れた（引き金になりうる）」とみなします。</div>
+
+<p>ここで<b>質問のしかたによって、入口がうまく決まるかどうかが大きく変わります。</b>2つのパターンで見てください。</p>
+
+<h3>パターンA：具体的な質問 → 対応するノードにちゃんと着火する</h3>
+<div class="exbox good">
+<p class="exq">Q.「電車には乗れていますか？」</p>
+<p class="extag">◯ 意味的に近い刺激ノードが存在する</p>
+<p class="rklegend">判定に効くのは<b>一番上（最も近い1本）</b>。オレンジ＝その1本、グレー＝2番手以降（ほぼ効かない）。目安は 0.35 以上で「しっかり触れた」。</p>
+<div class="rank">
+  <div class="rk top"><span class="nm">電車</span><span class="track"><span class="bar" style="width:66%"></span></span><span class="sc">0.66 ★</span></div>
+  <div class="rk"><span class="nm">車内</span><span class="track"><span class="bar" style="width:40%"></span></span><span class="sc">0.40</span></div>
+  <div class="rk"><span class="nm">鍵の開いた車</span><span class="track"><span class="bar" style="width:37%"></span></span><span class="sc">0.37</span></div>
+</div>
+<p class="thr">▲ 最も近い「電車」が 0.66 と目安(0.35)を<b>大きく超える</b>。狙いどおりの記憶が強く想起される。</p>
+</div>
+<p>「電車」という具体的な語には、グラフの中に<b>対応する刺激ノードがはっきり存在する</b>ので、高い近さで正しく火がつきます。ここから先（②）の連想も、狙いどおりのトラウマ記憶へ伸びます。</p>
+
+<h3>パターンB：抽象的な質問 → 対応するノードが無く、うまく想起されない</h3>
+<div class="exbox bad">
+<p class="exq">Q.「最近、気分はどんな感じですか？」</p>
+<p class="extag">✕ 「気分」に対応する具体的な刺激ノードが無い</p>
+<p class="rklegend">一番上ですら 0.35 と<b>目安ぎりぎり</b>。しかも語が「気分」と噛み合っていない。</p>
+<div class="rank">
+  <div class="rk top miss"><span class="nm">新しい症状</span><span class="track"><span class="bar" style="width:35%"></span></span><span class="sc">0.35</span></div>
+  <div class="rk"><span class="nm">他者の孤立感</span><span class="track"><span class="bar" style="width:34%"></span></span><span class="sc">0.34</span></div>
+  <div class="rk"><span class="nm">罪悪感</span><span class="track"><span class="bar" style="width:32%"></span></span><span class="sc">0.32</span></div>
+</div>
+<p class="thr">▲ 最も近い1本でも 0.35 と目安ぎりぎり、しかも「気分」と的外れ。狙った記憶が立ち上がらず空振りになりやすい。</p>
+</div>
+<p>「気分はどう？」のような<b>抽象的・一般的な問いには、対応する具体的な刺激ノードがありません</b>。すると、どのノードとも中途半端にしか近くならず、しかも意味のずれた（「新しい症状」等の）ノードに弱く触れるだけになります。結果、<b>狙った記憶がうまく立ち上がらない</b>。</p>
+
+<div class="key"><b>要点：</b>この模型は<b>具体的で情景のある問いかけほどよく反応</b>し、<b>抽象的な問いには鈍い／的外れ</b>になります。入口が言葉の意味だけで決まる仕組みの、強みでもあり限界でもあります（一般語「夜」「話す」に不意に触れて挨拶でも反応してしまう、という副作用もここから来ます）。</div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">2</div><h2>入口から、活性がグラフを伝わって広がる</h2></div>
+<p>入口の刺激に火がついたら、<b>つながっている線をたどって活性が周りへ広がります</b>。刺激 → からだの反応 → 意味づけ → 過去の記憶、という順に波及し、<b>1歩進むごとに弱まり、数歩で止まります</b>。強く残った反応・意味・記憶が、次のステップで返答の材料になります。</p>
+
+<figure>
+<div class="diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="210" viewBox="0 0 760 210">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9AA7AE"/></marker></defs>
+  <!-- entry -->
+  <circle cx="80" cy="105" r="30" fill="#f58231" stroke="#8a3d00" stroke-width="3"/>
+  <text x="80" y="101" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">刺激</text>
+  <text x="80" y="116" text-anchor="middle" font-size="10" fill="#fff">電車</text>
+  <text x="80" y="160" text-anchor="middle" font-size="10.5" fill="#9a5a1e">入口（0.66）</text>
+  <!-- hop1 -->
+  <circle cx="290" cy="55" r="22" fill="#4363d8"/><text x="290" y="52" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700">反応</text><text x="290" y="65" text-anchor="middle" font-size="8" fill="#fff">強い緊張</text>
+  <circle cx="290" cy="155" r="22" fill="#4363d8"/><text x="290" y="152" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700">反応</text><text x="290" y="165" text-anchor="middle" font-size="8" fill="#fff">恐怖</text>
+  <!-- hop2 -->
+  <circle cx="500" cy="55" r="18" fill="#e6194B"/><text x="500" y="52" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="700">意味</text><text x="500" y="64" text-anchor="middle" font-size="7" fill="#fff">安全でない</text>
+  <circle cx="500" cy="155" r="18" fill="#2E8B3D"/><text x="500" y="152" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="700">記憶</text><text x="500" y="164" text-anchor="middle" font-size="7" fill="#fff">パニック発作</text>
+  <!-- hop3 -->
+  <circle cx="680" cy="105" r="15" fill="#2E8B3D"/><text x="680" y="102" text-anchor="middle" font-size="8" fill="#fff" font-weight="700">記憶</text><text x="680" y="114" text-anchor="middle" font-size="6.5" fill="#fff">加害者の顔</text>
+  <!-- edges -->
+  <g stroke="#C6CFD3" stroke-width="1.8" fill="none">
+    <line x1="108" y1="92" x2="266" y2="60" marker-end="url(#a)"/>
+    <line x1="108" y1="118" x2="266" y2="150" marker-end="url(#a)"/>
+    <line x1="312" y1="55" x2="480" y2="55" marker-end="url(#a)"/>
+    <line x1="312" y1="150" x2="482" y2="153" marker-end="url(#a)"/>
+    <line x1="516" y1="150" x2="666" y2="112" marker-end="url(#a)"/>
+  </g>
+  <text x="200" y="24" font-size="10.5" fill="#5C6E79">→ 1歩ごとに弱まる（円が小さくなる）→</text>
+</svg>
+</div>
+<figcaption>入口「電車」から、線をたどって からだの反応・意味・過去の記憶へ活性が広がる（具体例）。抽象的な質問（パターンB）では入口が弱く的外れなので、広がっても強い恐怖記憶までは届かず、平静なままになりやすい。</figcaption>
+</figure>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">3</div><h2>活性化したノードをもとに、生成AIに振る舞わせる</h2></div>
+<p>最後に、<b>活性が強く残ったノード（からだの反応・意味・過去の記憶）を集めて、生成AI（ChatGPTのようなもの）への指示文に埋め込みます</b>。ここが「グラフから発話が生まれる」部分です。実際に渡している指示文は次のとおりで、<span class="inj">オレンジの箇所がグラフから取り出した活性ノード</span>、それ以外は固定の枠です。</p>
+
+<div class="prompt"><span class="sys">【AIへの役割設定（固定）】</span>
+あなたは、性暴力被害からPTSDを経験した当事者本人です。一人称で、短く自然な口語で話します。
+いまのあなたの状態は、その時々の手がかりによって変わります。
+
+<span class="sys">【この発話への指示（活性ノードを埋め込む）】</span>
+相手の発話: 電車には乗れていますか？
+
+あなたの中でいま一瞬で起きていること（内部連想）:
+引き金（※口に出さない）: <span class="inj">電車 / 車内 / 鍵の開いた車</span>
+からだの反応（※口に出さない）: <span class="inj">恐怖, 強い緊張, 避けたい</span>
+よぎった意味（※口に出さない）: <span class="inj">ここは安全ではない, あの出来事がまた起こる</span>
+結びついた過去（※口に出さない）: <span class="inj">電車移動がすぐ困難に / トンネルでパニック発作</span>
+
+この内部連想の“結果”として、いま事実になってしまった破局的な確信を、渦中の言葉で口にしてください。
+・まず飛躍した結論を短く言う。記憶の断片をフラッシュバックのように混ぜてよい。
+・なぜそう感じるかの説明・分析はしない（渦中なので気づけない）。2〜4文、現在形、断定。</div>
+
+<div class="say"><span class="sl">これに対して生成AIが返した発話</span><p>危ない、無理。来る、また。車内のあの感じ、鍵の開いた車みたいで、息が止まる。見られてる、逃げられない。</p></div>
+
+<div class="note"><b>ここが仕組みの核：</b>活性化したノードは<b>「本人が今この瞬間に内心で感じていること（口には出さない手がかり）」として渡し、その"結果"の一言だけ</b>を言わせています。だから返答は連想の説明ではなく、飛躍した確信になります。<b>何を思い出し・何を感じるかはグラフ（①②）が決めており、生成AIは最後の"言葉にする"係</b>にすぎません。症状は台本で「不安な人を演じて」と指定しているのではなく、記憶のつながり方から出てくる——これが主張の核です。</div>
+
+<p>入口が空振りだったパターンB（抽象的な質問）では、この内部連想は渡さず、<b>「強い引き金は立っていません。普段の落ち着いたあなたとして穏やかに応じて」</b>という指示だけになります。だから同じ患者でも落ち着いた語りが返ります。</p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+<div class="sechead"><div class="num">4</div><h2>今回いちばん伺いたい2点</h2></div>
+<div class="q"><span class="tag">Q1</span> CAPS-5 は時間・頻度が中心で、時間軸のないこのモデルには噛み合いません。代わりに、<b>グラフの活性や生成された発話から測れて、PTSD らしさを捉えられる指標</b>はないでしょうか。</div>
+<div class="q"><span class="tag">Q2</span> 実際の曝露療法での<b>「適切な介入」と「不適切な介入」</b>のイメージ、および<b>不適切な介入をしてしまったときにどう対処する</b>のか、を教えてください。</div>
+</section>
+
+<footer>
+caps5_graph_structure_eval_v3/meetings/20260724_how_the_model_works_plain.html ／ 臨床監修 共有用。
+関連：<a href="20260723_scope_and_clinical_questions.html">何に応えられて何に応えられないか</a>・<a href="../docs/00_overview.html">はじめに読む</a>・実出力 <code>../demo/qa_examples.html</code>
+</footer>
+
+</div>
+</body>
+</html>
